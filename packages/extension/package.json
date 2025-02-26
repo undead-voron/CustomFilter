@@ -1,0 +1,32 @@
+{
+  "name": "custom-blocker",
+  "version": "1.0.0",
+  "displayName": "CustomBlocker",
+  "author": "Den Inozemtsev",
+  "description": "Rework of CustomBlock browser extension",
+  "type": "module",
+  "scripts": {
+    "build": "vue-tsc --noEmit && vite build",
+    "watch": "vite build --watch --mode development --minify false",
+    "dev": "vite",
+    "serve:firefox": "web-ext run --start-url \"about:debugging#/runtime/this-firefox\"  --source-dir ./dist/",
+    "serve:chrome": "web-ext run -t chromium --start-url \"https://example.com\" --source-dir ./dist/"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@samrum/vite-plugin-web-extension": "^5.0.0",
+    "@types/chrome": "^0.0.254",
+    "@types/webextension-polyfill": "^0.10.6",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0",
+    "vue-tsc": "^2.2.4",
+    "web-ext": "^7.8.0"
+  },
+  "dependencies": {
+    "deco-ext": "^1.0.0",
+    "vite-plugin-swc-transform": "^1.1.0",
+    "vue": "^3.5.13",
+    "webextension-polyfill": "^0.10.0"
+  }
+}
