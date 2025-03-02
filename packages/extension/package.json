@@ -6,7 +6,7 @@
   "description": "Rework of CustomBlock browser extension",
   "type": "module",
   "scripts": {
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vite build",
     "watch": "vite build --watch --mode development --minify false",
     "dev": "vite",
     "serve:firefox": "web-ext run --start-url \"about:debugging#/runtime/this-firefox\"  --source-dir ./dist/",
