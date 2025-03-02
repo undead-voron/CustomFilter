@@ -8,6 +8,8 @@
       ]
     },
     "target": "esnext",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "useDefineForClassFields": true,
     "module": "esnext",
     "moduleResolution": "node",

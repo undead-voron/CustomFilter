@@ -50,6 +50,9 @@ const ManifestV2 = {
   permissions: [...sharedManifest.permissions, '*://*/*'],
 }
 
+const resources = [
+  'post_install.html',
+]
 const ManifestV3 = {
   ...sharedManifest,
   action: browserAction,
@@ -57,6 +60,10 @@ const ManifestV3 = {
     service_worker: 'src/entries/background/serviceWorker.ts',
   },
   host_permissions: ['*://*/*'],
+  web_accessible_resources: [{
+    resources,
+    matches: ['*://*/*'],
+  }],
 }
 
 export function getManifest(manifestVersion: number): chrome.runtime.ManifestV2 | chrome.runtime.ManifestV3 {

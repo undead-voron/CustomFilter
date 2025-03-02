@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
       vue({ script: { propsDestructure: true } }),
       webExtension({
         manifest: getManifest(Number(env.MANIFEST_VERSION) || 3),
+        additionalInputs: {
+          scripts: [{ fileName: './src/entries/post_install/main.ts', webAccessible: true }],
+        },
       }),
       swc({
         swcOptions: {
