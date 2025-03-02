@@ -52,6 +52,7 @@ const ManifestV2 = {
 
 const resources = [
   'post_install.html',
+  'src/entries/post_install/index.html',
 ]
 const ManifestV3 = {
   ...sharedManifest,
