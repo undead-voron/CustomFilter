@@ -1,6 +1,7 @@
 import type { Rule } from './types'
-import { InjectableService, onMessage, onTabActivated } from 'deco-ext'
+import { InjectableService, messageData, onMessage, onTabActivated } from 'deco-ext'
 import browser from 'webextension-polyfill'
+import { wildcardToRegExp } from '~/utils'
 
 @InjectableService()
 export default class RulesService {
@@ -9,6 +10,30 @@ export default class RulesService {
   async init() {
     const { appliedRules = {} } = await browser.storage.local.get(['appliedRules'])
     this.appliedRules = appliedRules
+  }
+
+  @onMessage({ name: 'getRulesByURL' })
+  async getRulesByURL(@messageData('url') url: string): Promise<Rule[]> {
+    const list: Rule[] = Object.values(this.appliedRules).flat()
+    const rules: Rule[] = []
+    for (const rule of list) {
+      try {
+        let regex
+        if (rule.specify_url_by_regexp) {
+          regex = new RegExp(rule.site_regexp, 'i')
+        }
+        else {
+          regex = new RegExp(wildcardToRegExp(rule.site_regexp), 'i')
+        }
+        if (regex.test(url)) {
+          rules.push(rule)
+        }
+      }
+      catch (e) {
+        console.log(e)
+      }
+    }
+    return rules
   }
 
   // TODO: move to tabs manager
@@ -21,7 +46,7 @@ export default class RulesService {
     // TODO: add icon change
   }
 
-  @onMessage({name: 'getAppliedRules'})
+  @onMessage({ name: 'getAppliedRules' })
   async getAppliedRules(): Promise<Rule[]> {
     // TODO: consider changing it
     // TODO: implment filter for current tab
@@ -34,6 +59,4 @@ export default class RulesService {
     // }
     return Object.values(this.appliedRules).flat()
   }
-
-
 }
