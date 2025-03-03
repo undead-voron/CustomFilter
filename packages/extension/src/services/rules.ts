@@ -32,7 +32,7 @@ export default class RulesService {
     //   const appliedRules = Object.values(this.appliedRules).flat().filter(rule => rule.url === url)
     //   return appliedRules
     // }
-    return []//Object.values(this.appliedRules).flat()
+    return Object.values(this.appliedRules).flat()
   }
 
 
