@@ -23,7 +23,16 @@ const sharedManifest: Partial<chrome.runtime.ManifestBase> = {
     page: 'src/entries/options/index.html',
     open_in_tab: true,
   },
-  permissions: [],
+  permissions: [
+    'storage',
+    'tabs',
+    'notifications',
+    'webNavigation',
+    'nativeMessaging',
+    'cookies',
+    'unlimitedStorage',
+    'activeTab',
+  ],
 }
 
 const browserAction = {

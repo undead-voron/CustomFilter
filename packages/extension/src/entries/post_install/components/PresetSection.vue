@@ -111,6 +111,7 @@ const useChecked = () => {
   })
 
   try {
+    // TODO: this MUST be fixed
     const bgWindow = chrome.extension.getBackgroundPage()
     bgWindow.reloadLists()
   } catch (ex) {
