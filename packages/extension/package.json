@@ -18,6 +18,7 @@
     "@types/chrome": "^0.0.254",
     "@types/webextension-polyfill": "^0.10.6",
     "@vitejs/plugin-vue": "^4.5.0",
+    "autoprefixer": "^10.4.20",
     "typescript": "^5.7.3",
     "vite": "^6.2.0",
     "vue-tsc": "^2.2.4",
@@ -25,6 +26,11 @@
   },
   "dependencies": {
     "deco-ext": "^1.0.0",
+    "draggable": "^4.2.0",
+    "postcss": "^8.5.3",
+    "postcss-import": "^16.1.0",
+    "postcss-nesting": "^13.0.1",
+    "tailwindcss": "3.4.1",
     "vite-plugin-swc-transform": "^1.1.0",
     "vue": "^3.5.13",
     "webextension-polyfill": "^0.10.0"

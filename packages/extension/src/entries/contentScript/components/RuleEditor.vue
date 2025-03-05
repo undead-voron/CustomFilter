@@ -1,6 +1,6 @@
 <template>
-  <div class="rule-editor" ref="container">
-    <div class="drag-handle" @mousedown="onMousedown" @mousemove="onMousemove" @mouseup="onMouseup"></div>
+  <div class="rule-editor flex flex-col bg-white z-max" ref="container">
+    <div class="drag-handle"  ></div>
     <RuleEditorFrame :rule="rule" @save="saveRule" @test="testRule" @close="closeEditor"
       @pick-path="startPathPicking" />
     <PathPicker v-if="showPathPicker" :target-type="currentPathTarget" :selected-element="selectedElement"
@@ -13,6 +13,7 @@ import { ref, onUnmounted, provide, inject } from 'vue'
 import type { Rule } from '~/services/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
+import useDraggable from '~/utils/useDraggable';
 
 const props = defineProps<{
   initialRule: Rule
@@ -23,7 +24,7 @@ const emit = defineEmits<{
 }>()
 
 const container = ref<HTMLElement | null>(null)
-const rule = ref<Rule>(props.initialRule )
+const rule = ref<Rule>(props.initialRule)
 const moving = ref(false)
 const dragState = ref({
   origEventX: 0,
@@ -34,9 +35,12 @@ const dragState = ref({
 
 // Path picker state
 const showPathPicker = ref(false)
+const dragHandle = ref<HTMLElement | null>(null)
 const currentPathTarget = ref('')
 const selectedElement = ref<HTMLElement | null>(null)
 const pathPickerHandlers = ref<{ element: HTMLElement, handlers: any[] }[]>([])
+
+useDraggable(container);
 
 const onMousedown = (event: MouseEvent) => {
   moving.value = true
@@ -166,7 +170,11 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .rule-editor {
   position: fixed;
   top: 20px;

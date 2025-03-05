@@ -2,9 +2,9 @@
   <div class="rule-editor-frame">
     <section class="section">
       <div class="section-body">
-        <div class="input-section">
-          <label>Name</label>
-          <input type="text" v-model="rule.title" />
+        <div class="input-section flex flex-row justify-center gap-2">
+          <label class="shrink-0 grow-0">Name</label>
+          <input type="text" class="flex-1 shrink grow" v-model="rule.title" />
         </div>
       </div>
     </section>
@@ -12,10 +12,10 @@
     <section class="section">
       <h2>Target Sites</h2>
       <div class="section-body">
-        <div class="input-section">
-          <label>URL</label>
-          <input type="text" v-model="rule.site_regexp" />
-          <a class="help" href="site.html">?</a>
+        <div class="input-section flex flex-row justify-center items-center gap-sm">
+          <label class="shrink-0 grow-0">URL</label>
+          <input type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
+          <a class="help shrink-0 grow-0" href="site.html">?</a>
         </div>
         <div class="checkbox-section">
           <input type="checkbox" id="specify-url-regexp" v-model="rule.specify_url_by_regexp" />
@@ -24,7 +24,7 @@
         <div v-if="!isUrlValid" class="section-alert">
           This expression does not match this site.
         </div>
-        <div class="description">
+        <div class="text-details">
           The asterisk (*) matches zero or more characters.
           This rule is applied on matched sites.
         </div>
@@ -35,39 +35,44 @@
       <h2>Elements to Hide</h2>
       <div class="section-body">
         <div class="selector-section">
-          <div v-if="!rule.hide_block_by_css" class="input-section">
-            <label>
+        <!--TODO: fix it. no need to rerender all block. just rerender count and name-->
+          <div v-if="!rule.hide_block_by_css" class="input-section flex flex-row justify-center gap-sm">
+            <label class="shrink-0 grow-0 flex items-center justify-center">
               <span class="count">{{ hideElementsCount }}</span> XPath
             </label>
-            <div class="input-group">
-              <input type="text" v-model="rule.hide_block_xpath" />
-              <button class="xpath-picker" @click="pickPath('hide_xpath')">
-                <img :src="wandUrl" alt="Pick" />
+            <div class="input-group flex flex-row justify-center shrink grow">
+              <input type="text" class="shrink grow" v-model="rule.hide_block_xpath" />
+              <button class="bg-brand-green text-white px-md py-sm shrink-0 grow-0 flex flex-row" @click="pickPath('hide_xpath')">
+                <img :src="wandUrl" alt="Pick" class="h-[1.5em]" />  Suggest
               </button>
             </div>
           </div>
-          <div v-else class="input-section">
-            <label>
+          <div v-else class="input-section flex flex-row justify-center gap-sm">
+            <label class="flex items-center justify-center">
               <span class="count">{{ hideElementsCount }}</span> CSS
             </label>
-            <div class="input-group">
-              <input type="text" v-model="rule.hide_block_css" />
-              <button class="xpath-picker" @click="pickPath('hide_css')">
-                <img :src="wandUrl" alt="Pick" />
+            <div class="input-group flex flex-row justify-center shrink grow">
+              <input type="text" class="shrink grow" v-model="rule.hide_block_css" />
+              <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row" @click="pickPath('hide_css')">
+                <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
               </button>
             </div>
           </div>
-          <div class="selector-type">
-            <input type="radio" id="hide-xpath" :value="false" v-model="rule.hide_block_by_css" />
-            <label for="hide-xpath">XPath</label>
-            <input type="radio" id="hide-css" :value="true" v-model="rule.hide_block_by_css" />
-            <label for="hide-css">CSS</label>
+          <div class="flex flex-row gap-sm">
+            <div class="flex flex-row gap-md">
+              <input type="radio" id="hide-xpath" :value="false" v-model="rule.hide_block_by_css" />
+              <label for="hide-xpath">XPath</label>
+            </div>
+            <div class="flex flex-row gap-sm">
+              <input type="radio" id="hide-css" :value="true" v-model="rule.hide_block_by_css" />
+              <label for="hide-css">CSS</label>
+            </div>
           </div>
           <div v-if="hideXPathError" class="section-alert">
             Invalid XPath
           </div>
         </div>
-        <div class="description">
+        <div class="text-details">
           Matched elements will disappear if they meet the condition.
         </div>
       </div>
@@ -90,53 +95,57 @@
 
         <div v-if="!rule.block_anyway" class="keywords-section">
           <h4>Keywords</h4>
-          <div class="keywords-list">
-            <div v-for="(keyword, index) in rule.keywords" :key="index" class="keyword-item">
-              <input type="text" v-model="rule.keywords[index]" />
-              <button @click="removeKeyword(index)">×</button>
+          <div class="flex flex-row flex-wrap gap-sm">
+            <div v-for="(keyword, index) in rule.keywords" :key="index" class="keyword-item shrink-0 grow-0 bg-brand-blue text-white p-sm justify-center items-center">
+              <span type="text" >{{ rule.keywords[index] }}</span>
+              <button @click="removeKeyword(index)" class="p-0 shrink-0 grow-0">×</button>
             </div>
           </div>
-          <div class="new-keyword">
+          <div class="flex flex-row gap-md my-md">
             <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" />
-            <button @click="addKeyword">Add</button>
+            <button @click="addKeyword" class="bg-brand-blue text-white px-md py-sm">Add</button>
             <a class="help" href="keywords.html">?</a>
           </div>
 
           <h4>Search Range</h4>
           <div class="selector-section">
-            <div v-if="!rule.search_block_by_css" class="input-section">
-              <label>
+            <div v-if="!rule.search_block_by_css" class="input-section flex flex-row justify-center gap-sm">
+              <label class="shrink-0 grow-0 flex items-center justify-center">
                 <span class="count">{{ searchElementsCount }}</span> XPath
               </label>
-              <div class="input-group">
-                <input type="text" v-model="rule.search_block_xpath" />
-                <button class="xpath-picker" @click="pickPath('search_xpath')">
-                  <img :src="wandUrl" alt="Pick" />
+              <div class="input-group flex flex-row shrink grow">
+                <input type="text" class="shrink grow" v-model="rule.search_block_xpath" />
+                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row" @click="pickPath('search_xpath')">
+                  <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
                 </button>
               </div>
             </div>
-            <div v-else class="input-section">
-              <label>
+            <div v-else class="input-section flex flex-row justify-center gap-sm">
+              <label class="shrink-0 grow-0 flex items-center justify-center">
                 <span class="count">{{ searchElementsCount }}</span> CSS
               </label>
-              <div class="input-group">
-                <input type="text" v-model="rule.search_block_css" />
-                <button class="xpath-picker" @click="pickPath('search_css')">
-                  <img :src="wandUrl" alt="Pick" />
+              <div class="input-group flex flex-row shrink grow">
+                <input type="text" class="shrink grow" v-model="rule.search_block_css" />
+                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row" @click="pickPath('search_css')">
+                  <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
                 </button>
               </div>
             </div>
-            <div class="selector-type">
-              <input type="radio" id="search-xpath" :value="false" v-model="rule.search_block_by_css" />
-              <label for="search-xpath">XPath</label>
-              <input type="radio" id="search-css" :value="true" v-model="rule.search_block_by_css" />
-              <label for="search-css">CSS</label>
+            <div class="flex flex-row gap-md">
+              <div class="flex flex-row gap-sm">
+                <input type="radio" id="search-xpath" :value="false" v-model="rule.search_block_by_css" />
+                <label for="search-xpath">XPath</label>
+              </div>
+              <div class="flex flex-row gap-sm">
+                <input type="radio" id="search-css" :value="true" v-model="rule.search_block_by_css" />
+                <label for="search-css">CSS</label>
+              </div>
             </div>
             <div v-if="searchXPathError" class="section-alert">
               Invalid XPath
             </div>
           </div>
-          <div class="description">
+          <div class="text-details">
             The filter works when these elements contain "Keywords".
           </div>
         </div>
@@ -144,9 +153,9 @@
     </section>
 
     <footer class="footer">
-      <button @click="$emit('save')">Save</button>
-      <button @click="$emit('test')">Test Rule</button>
-      <button @click="$emit('close')">Close</button>
+      <button @click="$emit('save')" class="bg-brand-blue text-white px-md py-sm">Save</button>
+      <button @click="$emit('test')" class="bg-brand-green text-white px-md py-sm">Test Rule</button>
+      <button @click="$emit('close')" class="bg-brand-gray text-white px-md py-sm">Close</button>
     </footer>
   </div>
 </template>
@@ -228,7 +237,7 @@ const pickPath = (type: string) => {
 }
 
 .section {
-  margin-bottom: 24px;
+  margin-bottom: 5px;
 }
 
 .section h2 {
@@ -245,19 +254,6 @@ const pickPath = (type: string) => {
   margin-bottom: 12px;
 }
 
-.input-section label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-input[type="text"] {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
 .checkbox-section {
   margin: 8px 0;
 }
@@ -268,31 +264,26 @@ input[type="text"] {
   font-size: 14px;
 }
 
-.description {
-  color: #666;
-  font-size: 14px;
-  margin-top: 8px;
-}
 
 .selector-section {
   margin-bottom: 16px;
 }
 
 .selector-type {
-  margin: 8px 0;
+  margin: 0;
   display: flex;
   gap: 16px;
 }
 
 .keywords-section {
-  margin-top: 16px;
+  margin-top: 6px;
 }
 
 .keywords-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .keyword-item {
@@ -301,20 +292,6 @@ input[type="text"] {
 }
 
 .keyword-item input {
-  flex: 1;
-}
-
-.keyword-item button {
-  padding: 4px 8px;
-}
-
-.new-keyword {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.new-keyword input {
   flex: 1;
 }
 
@@ -330,23 +307,10 @@ input[type="text"] {
 
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 8px;
-  margin-top: 24px;
-  padding-top: 16px;
+  padding-top: 8px;
   border-top: 1px solid #eee;
-}
-
-button {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #eee;
 }
 
 .count {
