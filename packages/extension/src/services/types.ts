@@ -22,7 +22,7 @@ export interface Word {
   regExp: RegExp
 
   // TODO move to wrapper
-  checkedNodes: HTMLElement[]
+  checkedNodes: Element[]
   label: string
 }
 export interface WordGroup {
@@ -75,3 +75,11 @@ export interface Rule {
   specify_url_by_regexp: boolean
   existing: boolean // TODO for import/export
 }
+export interface PathFilter {
+  path: string
+  elements: HTMLElement[]
+}
+export interface PathBuilder {
+  createPathFilter (_path:string):PathFilter;
+}
+

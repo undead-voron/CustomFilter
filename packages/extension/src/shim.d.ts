@@ -7,5 +7,6 @@ declare module 'deco-ext' {
     openRuleEditor: void
     getAppliedRules: ProtocolWithReturn<Record<never, never>, Rule[]>
     getRulesByURL: ProtocolWithReturn<{ url: string }, Rule[]>
+    badge: ProtocolWithReturn<{ count: number }, void>
   }
 }

@@ -1,10 +1,10 @@
 export * from './array-utils'
 export * from './css-utils'
 export * from './dom-utils'
+export * from './findWordInNode'
 export * from './isExtensionEnabledState'
 export * from './log-utils'
 export * from './path-utils'
 export * from './string-utils'
 export * from './ui-utils'
 export * from './word-utils'
-
