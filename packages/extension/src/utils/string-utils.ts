@@ -28,6 +28,10 @@ export function wildcardToRegExp(str: string): string {
   return result
 }
 
+export function escapeStringForRegExp(str: string): string {
+  return str.replace(/[\\[.+*?(){|^$]/g, '\\$&')
+}
+
 /**
  * Shortens text to fit within a specified width limit
  */
