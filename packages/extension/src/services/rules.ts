@@ -2,6 +2,7 @@ import type { Rule } from './types'
 import { InjectableService, messageData, onMessage, onTabActivated } from 'deco-ext'
 import browser from 'webextension-polyfill'
 import { wildcardToRegExp } from '~/utils'
+import {escapeStringForRegExp} from '~/utils/string-utils';
 
 @InjectableService()
 export default class RulesService {
@@ -23,7 +24,7 @@ export default class RulesService {
           regex = new RegExp(rule.site_regexp, 'i')
         }
         else {
-          regex = new RegExp(wildcardToRegExp(rule.site_regexp), 'i')
+          regex = new RegExp(wildcardToRegExp(escapeStringForRegExp(rule.url)), 'i')
         }
         if (regex.test(url)) {
           rules.push(rule)
