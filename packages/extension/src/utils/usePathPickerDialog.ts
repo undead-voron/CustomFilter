@@ -1,7 +1,7 @@
 import { onMounted, ref } from 'vue'
 import { escapeHTML, trim } from './string-utils'
 
-export default function usePathPickerDialog() {
+export function usePathPickerDialog() {
   const pathPickerDialog = ref<HTMLElement | null>(null)
   const pathPickerUL = ref<HTMLElement | null>(null)
   const currentSearchFilter = ref(null)
@@ -15,7 +15,7 @@ export default function usePathPickerDialog() {
       div.setAttribute('avoidStyle', 'true')
       div.style.display = 'none'
       div.style.backgroundColor = 'white'
-      div.style.zIndex = _zIndex.toString()
+      div.style.zIndex = '2147483647'
       div.style.fontSize = 'small'
       div.style.textAlign = 'left'
       div.style.position = 'absolute'
