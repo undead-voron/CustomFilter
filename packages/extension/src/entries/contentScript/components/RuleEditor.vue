@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, provide, inject } from 'vue'
+import { ref, onUnmounted, provide, inject, onMounted } from 'vue'
 import type { Rule } from '~/services/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
@@ -25,42 +25,14 @@ const emit = defineEmits<{
 
 const container = ref<HTMLElement | null>(null)
 const rule = ref<Rule>(props.initialRule)
-const moving = ref(false)
-const dragState = ref({
-  origEventX: 0,
-  origEventY: 0,
-  origDivX: 0,
-  origDivY: 0,
-})
 
 // Path picker state
 const showPathPicker = ref(false)
-const dragHandle = ref<HTMLElement | null>(null)
 const currentPathTarget = ref('')
 const selectedElement = ref<HTMLElement | null>(null)
 const pathPickerHandlers = ref<{ element: HTMLElement, handlers: any[] }[]>([])
 
 useDraggable(container);
-
-const onMousedown = (event: MouseEvent) => {
-  moving.value = true
-  dragState.value = {
-    origEventX: event.pageX,
-    origEventY: event.pageY,
-    origDivX: parseInt(container.value?.style.right.replace('px', '') || '0'),
-    origDivY: parseInt(container.value?.style.top.replace('px', '') || '0'),
-  }
-}
-
-const onMousemove = (event: MouseEvent) => {
-  if (!moving.value || !container.value) return
-  container.value.style.right = `${dragState.value.origDivX - (event.pageX - dragState.value.origEventX)}px`
-  container.value.style.top = `${dragState.value.origDivY + (event.pageY - dragState.value.origEventY)}px`
-}
-
-const onMouseup = () => {
-  moving.value = false
-}
 
 const applyRule = inject('applyRule') as (rule: Rule) => void
 const testRule = () => {
