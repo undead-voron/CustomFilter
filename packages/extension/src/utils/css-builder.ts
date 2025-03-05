@@ -1,31 +1,35 @@
 import type { PathBuilder, PathFilter } from '~/services/types'
-import { getElementsByCssSelector } from './dom-utils'
-import { trim } from './string-utils'
+import { useCssBuilder } from '~/composables/usePath'
 
 export class CssBuilder implements PathBuilder {
+  private builder: ReturnType<typeof useCssBuilder>
+
+  constructor() {
+    this.builder = useCssBuilder()
+  }
+
   getIdExpression(elementId: string): string {
-    return `#${elementId}`
+    return this.builder.getIdExpression(elementId)
   }
 
   getDescendantSeparator(): string {
-    return ' '
+    return this.builder.getDescendantSeparator()
   }
 
   getChildSeparator(): string {
-    return '>'
+    return this.builder.getChildSeparator()
   }
 
   getMultipleTagNameAndClassNameExpression(tagName: string, className: string): string {
-    return `${tagName}.${className}`
+    return this.builder.getMultipleTagNameAndClassNameExpression(tagName, className)
   }
 
   getSingleTagNameAndClassNameExpression(tagName: string, className: string): string {
-    return `${tagName}.${className}`
+    return this.builder.getSingleTagNameAndClassNameExpression(tagName, className)
   }
 
   createPathFilter(_path: string): PathFilter {
-    const path = trim(_path)
-    return new CssPathFilter(path)
+    return this.builder.createPathFilter(_path)
   }
 }
 
@@ -33,8 +37,10 @@ export class CssBuilder implements PathBuilder {
 export class CssPathFilter implements PathFilter {
   path: string
   elements: HTMLElement[]
+
   constructor(path: string) {
-    this.path = path
-    this.elements = getElementsByCssSelector(path)
+    const filter = useCssBuilder().createPathFilter(path)
+    this.path = filter.path
+    this.elements = filter.elements as HTMLElement[]
   }
 }

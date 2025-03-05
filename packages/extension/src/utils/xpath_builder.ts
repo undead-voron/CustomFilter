@@ -1,41 +1,46 @@
 import type { PathBuilder, PathFilter } from '~/services/types'
-import { getElementsByXPath } from './dom-utils'
-import { trim } from './string-utils'
+import { useXPathBuilder } from '~/composables/usePath'
 
 export class XPathBuilder implements PathBuilder {
+  private builder: ReturnType<typeof useXPathBuilder>
+
+  constructor() {
+    this.builder = useXPathBuilder()
+  }
+
   getIdExpression(elementId: string): string {
-    return `id("${elementId}")`
+    return this.builder.getIdExpression(elementId)
   }
 
   getDescendantSeparator(): string {
-    return '//'
+    return this.builder.getDescendantSeparator()
   }
 
   getChildSeparator(): string {
-    return '/'
+    return this.builder.getChildSeparator()
   }
 
   getMultipleTagNameAndClassNameExpression(tagName: string, className: string): string {
-    return `${tagName
-    }[contains(concat(" ",normalize-space(@class)," "),"${className
-    }")]`
+    return this.builder.getMultipleTagNameAndClassNameExpression(tagName, className)
   }
 
-  getSingleTagNameAndClassNameExpression(tagName: string, className: string) {
-    return `${tagName}[@class="${className}"]`
+  getSingleTagNameAndClassNameExpression(tagName: string, className: string): string {
+    return this.builder.getSingleTagNameAndClassNameExpression(tagName, className)
   }
 
-  createPathFilter(_path): PathFilter {
-    const path = trim(_path)
-    return new XpathPathFilter(path)
+  createPathFilter(_path: string): PathFilter {
+    return this.builder.createPathFilter(_path)
   }
 }
 
 export class XpathPathFilter implements PathFilter {
   path: string
   elements: HTMLElement[]
+
   constructor(path: string) {
-    this.path = path
-    this.elements = getElementsByXPath(path)
+    const filter = useXPathBuilder().createPathFilter(path)
+    this.path = filter.path
+    this.elements = filter.elements as HTMLElement[]
   }
 }
+
