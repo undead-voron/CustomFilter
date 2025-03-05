@@ -106,7 +106,7 @@
           </div>
           <div class="flex flex-row gap-md my-md">
             <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" />
-            <button @click="addKeyword" class="bg-brand-blue text-white px-md py-sm">Add</button>
+            <button @click="addKeyword" class="bg-brand-blue grow-0 shrink-0 text-white px-md py-sm">Add</button>
             <a class="help" href="keywords.html">?</a>
           </div>
 
