@@ -22,13 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useXPathBuilder, useCssBuilder, usePathAnalyzer } from '~/composables/usePath'
 
 const props = defineProps<{
   targetType: string
   selectedElement: HTMLElement
 }>()
+
+const shadowRoot = inject('shadowRoot') as HTMLElement
 
 const emit = defineEmits<{
   (e: 'path-selected', data: { target: string, path: string }): void
@@ -99,6 +101,20 @@ const t = (key: string) => {
   // TODO: Implement proper i18n
   return key
 }
+
+watch(container, (newVal) => {
+  console.log('PathPicker new value', newVal)
+  if (newVal) {
+    newVal.parentNode?.removeChild(newVal)
+    shadowRoot.appendChild(newVal)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (container.value) {
+    shadowRoot.removeChild(container.value)
+  }
+})
 </script>
 
 <style scoped>
