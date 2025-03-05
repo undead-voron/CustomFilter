@@ -14,7 +14,10 @@
       <div class="section-body">
         <div class="input-section flex flex-row justify-center items-center gap-sm">
           <label class="shrink-0 grow-0">URL</label>
-          <input type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
+
+          <input v-if="rule.specify_url_by_regexp" type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
+          <input v-else type="text" class="flex-1 shrink grow" v-model="rule.url" />
+          
           <a class="help shrink-0 grow-0" href="site.html">?</a>
         </div>
         <div class="checkbox-section">
