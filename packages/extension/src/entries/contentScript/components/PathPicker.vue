@@ -23,9 +23,7 @@
 
 <script setup lang="ts">
 import { ref, computed, inject } from 'vue'
-import { PathAnalyzer } from '~/utils/path_analyzer'
-import { XPathBuilder } from '~/utils/xpath_builder'
-import { CssBuilder } from '~/utils/css-builder'
+import { useXPathBuilder, useCssBuilder, usePathAnalyzer } from '~/composables/usePath'
 
 const props = defineProps<{
   targetType: string
@@ -47,10 +45,12 @@ const title = computed(() => {
   return `Select ${isHide ? 'Hide' : 'Search'} ${isXPath ? 'XPath' : 'CSS'} Path`
 })
 
+const { createPathAnalyzer } = usePathAnalyzer()
+
 const paths = computed(() => {
   const isXPath = props.targetType.endsWith('xpath')
-  const builder = isXPath ? new XPathBuilder() : new CssBuilder( )
-  const analyzer = new PathAnalyzer(props.selectedElement, builder, null, null)
+  const builder = isXPath ? useXPathBuilder() : useCssBuilder()
+  const analyzer = createPathAnalyzer(props.selectedElement, builder)
   return analyzer.createPathList()
 })
 
@@ -72,7 +72,7 @@ const selectParent = () => {
   }
 }
 const highlightHideElements = inject('highlightHideElements') as (el?: HTMLElement[]) => void
-const highlightSearchElements= inject('highlightHideElements ') as (el?: HTMLElement[]) => void
+const highlightSearchElements = inject('highlightSearchElements') as (el?: HTMLElement[]) => void
 
 const previewPath = (path: any) => {
   const isHide = props.targetType.startsWith('hide')

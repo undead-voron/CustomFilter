@@ -80,6 +80,11 @@ export interface PathFilter {
   elements: HTMLElement[]
 }
 export interface PathBuilder {
-  createPathFilter (_path:string):PathFilter;
+  getIdExpression: (elementId: string) => string
+  getDescendantSeparator: () => string
+  getChildSeparator: () => string
+  getMultipleTagNameAndClassNameExpression: (tagName: string, className: string) => string
+  getSingleTagNameAndClassNameExpression: (tagName: string, className: string) => string
+  createPathFilter: (_path: string) => PathFilter
 }
 
