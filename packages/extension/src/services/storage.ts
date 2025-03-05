@@ -1,6 +1,7 @@
 import type { Rule } from '~/services/types'
 import { InjectableService } from 'deco-ext'
 import browser from 'webextension-polyfill'
+import {escapeStringForRegExp} from '~/utils/string-utils';
 
 const RULES_STORAGE_KEY = 'custom_blocker_rules'
 
@@ -8,9 +9,10 @@ const RULES_STORAGE_KEY = 'custom_blocker_rules'
 export default class CustomBlockerStorage {
   createRule(): Rule {
     return {
-      title: '',
-      site_regexp: '',
-      example_url: '',
+      title: document?.title ?? '',
+      site_regexp: escapeStringForRegExp(location?.href ?? ''),
+      url: location?.href ?? '',
+      example_url: location?.href ?? '',
       block_anyway: false,
       hide_block_by_css: true,
       search_block_by_css: true,
