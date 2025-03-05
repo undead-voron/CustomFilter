@@ -37,6 +37,7 @@ export default class Main {
           .provide('highlightSearchElements', (el?: HTMLElement[]) => {
             this.elementsHighliter.highlightSearchElements(el)
           })
+          .provide('shadowRoot', this.appRoot.parentNode)
       },
     )
   }
@@ -49,7 +50,18 @@ export default class Main {
     // TODO: handle it. Find out how app opens ui
     // this.ui.mount(this.appRoot)
     const props = this.cbStorage.createRule()
-    createApp(RulesEditor, { initialRule: props }).mount(this.appRoot)
+    createApp(RulesEditor, { initialRule: props })
+      .provide('saveRule', (rule: Rule) => {
+        this.cbStorage.saveRule(rule)
+      })
+      .provide('highlightHideElements', (el?: HTMLElement[]) => {
+        this.elementsHighliter.highlightHideElements(el)
+      })
+      .provide('highlightSearchElements', (el?: HTMLElement[]) => {
+        this.elementsHighliter.highlightSearchElements(el)
+      })
+      .provide('shadowRoot', this.appRoot.parentNode)
+      .mount(this.appRoot)
   }
 
   unmount() {
