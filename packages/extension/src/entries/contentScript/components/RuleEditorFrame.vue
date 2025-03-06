@@ -3,7 +3,7 @@
     <section class="section">
       <div class="section-body">
         <div class="input-section flex flex-row justify-center gap-2">
-          <label class="shrink-0 grow-0">Name</label>
+          <label class="shrink-0 grow-0 flex items-center justify-center">Name</label>
           <input type="text" class="flex-1 shrink grow" v-model="rule.title" />
         </div>
       </div>
@@ -11,8 +11,8 @@
 
     <section class="section">
       <h2>Target Sites</h2>
-      <div class="section-body">
-        <div class="input-section flex flex-row justify-center items-center gap-sm">
+      <div class="section-body flex flex-col gap-sm">
+        <div class="flex flex-row justify-center items-center gap-sm">
           <label class="shrink-0 grow-0">URL</label>
 
           <input v-if="rule.specify_url_by_regexp" type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
@@ -20,7 +20,7 @@
           
           <a class="help shrink-0 grow-0" href="site.html">?</a>
         </div>
-        <div class="checkbox-section">
+        <div class="flex flex-row gap-sm items-center">
           <input type="checkbox" id="specify-url-regexp" v-model="rule.specify_url_by_regexp" />
           <label for="specify-url-regexp">Use RegExp</label>
         </div>

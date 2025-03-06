@@ -60,6 +60,12 @@ export default class Main {
       .provide('highlightSearchElements', (el?: HTMLElement[]) => {
         this.elementsHighliter.highlightSearchElements(el)
       })
+      .provide('applyRule', (rule: Rule) => {
+        console.log('applying rule', rule)
+        this.rulesExecutor.rules.push(rule)
+        // this.rulesExecutor.applyRule(rule, true, (...args) => { console.log('callback args', args) }, false)
+        this.rulesExecutor.execBlock()
+      })
       .provide('shadowRoot', this.appRoot.parentNode)
       .mount(this.appRoot)
   }

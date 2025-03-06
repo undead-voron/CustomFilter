@@ -87,4 +87,16 @@ export interface PathBuilder {
   getSingleTagNameAndClassNameExpression: (tagName: string, className: string) => string
   createPathFilter: (_path: string) => PathFilter
 }
+export interface RuleValidation {
+	title:string,
+	site_regexp:string,
+	search_block_xpath:string,
+	hide_block_xpath:string,
 
+	example_url?:string;
+	site_description?:string;
+	search_block_css?:string;
+	search_block_description?:string;
+	hide_block_css?:string;
+	hide_block_description?:string;
+}
