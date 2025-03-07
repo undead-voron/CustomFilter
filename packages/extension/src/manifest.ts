@@ -60,6 +60,7 @@ const ManifestV2 = {
 }
 
 const resources = [
+  'help/*',
   'post_install.html',
   'src/entries/post_install/index.html',
 ]

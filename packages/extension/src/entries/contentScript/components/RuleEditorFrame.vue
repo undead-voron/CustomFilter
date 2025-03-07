@@ -1,6 +1,6 @@
 <template>
   <div class="rule-editor-frame">
-    <section class="section">
+    <section>
       <div class="section-body">
         <div class="input-section flex flex-row justify-center gap-2">
           <label class="shrink-0 grow-0 flex items-center justify-center">Name</label>
@@ -9,16 +9,19 @@
       </div>
     </section>
 
-    <section class="section">
-      <h2>Target Sites</h2>
+    <section class="section border border-black">
+      <div class="flex flex-row px-md">
+        <h2 class="px-sm">Target Sites</h2>
+      </div>
       <div class="section-body flex flex-col gap-sm">
         <div class="flex flex-row justify-center items-center gap-sm">
           <label class="shrink-0 grow-0">URL</label>
 
           <input v-if="rule.specify_url_by_regexp" type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
           <input v-else type="text" class="flex-1 shrink grow" v-model="rule.url" />
-          
-          <a class="help shrink-0 grow-0" href="site.html">?</a>
+
+          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')"><img :src="helpUrl"
+              class="h-[1.5em]" /></a>
         </div>
         <div class="flex flex-row gap-sm items-center">
           <input type="checkbox" id="specify-url-regexp" v-model="rule.specify_url_by_regexp" />
@@ -34,19 +37,22 @@
       </div>
     </section>
 
-    <section class="section">
-      <h2>Elements to Hide</h2>
+    <section class="section border border-black">
+      <div class="flex flex-row px-md">
+        <h2 class="px-sm">Elements to Hide</h2>
+      </div>
       <div class="section-body">
         <div class="selector-section">
-        <!--TODO: fix it. no need to rerender all block. just rerender count and name-->
+          <!--TODO: fix it. no need to rerender all block. just rerender count and name-->
           <div v-if="!rule.hide_block_by_css" class="input-section flex flex-row justify-center gap-sm">
             <label class="shrink-0 grow-0 flex items-center justify-center">
               <span class="count">{{ hideElementsCount }}</span> XPath
             </label>
             <div class="input-group flex flex-row justify-center shrink grow">
               <input type="text" class="shrink grow" v-model="rule.hide_block_xpath" />
-              <button class="bg-brand-green text-white px-md py-sm shrink-0 grow-0 flex flex-row" @click="pickPath('hide_xpath')">
-                <img :src="wandUrl" alt="Pick" class="h-[1.5em]" />  Suggest
+              <button class="bg-brand-green text-white px-md py-sm shrink-0 grow-0 flex flex-row"
+                @click="pickPath('hide_xpath')">
+                <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
               </button>
             </div>
           </div>
@@ -56,7 +62,8 @@
             </label>
             <div class="input-group flex flex-row justify-center shrink grow">
               <input type="text" class="shrink grow" v-model="rule.hide_block_css" />
-              <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row" @click="pickPath('hide_css')">
+              <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
+                @click="pickPath('hide_css')">
                 <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
               </button>
             </div>
@@ -81,16 +88,19 @@
       </div>
     </section>
 
-    <section class="section">
-      <h2>Condition</h2>
+    <section class="section border border-black">
+      <div class="flex flex-row px-md">
+        <h2 class="px-sm">Condition</h2>
+      </div>
       <div class="section-body">
         <div class="condition-type">
-          <div>
+          <div class="flex flex-row gap-sm items-center">
             <input type="radio" id="block-anyway" :value="true" v-model="rule.block_anyway" />
             <label for="block-anyway">Block Anyway</label>
-            <a class="help" href="block_anyway.html">?</a>
+            <a class="help flex items-center justify-center" @click="openHelp('/help/block_anyway.html')"><img
+                :src="helpUrl" class="h-[1.5em]" /></a>
           </div>
-          <div>
+          <div class="flex flex-row gap-sm">
             <input type="radio" id="block-with-keywords" :value="false" v-model="rule.block_anyway" />
             <label for="block-with-keywords">Filter with Keywords</label>
           </div>
@@ -99,16 +109,53 @@
         <div v-if="!rule.block_anyway" class="keywords-section">
           <h4>Keywords</h4>
           <div class="flex flex-row flex-wrap gap-sm">
-            <div v-for="(keyword, index) in rule.keywords" :key="index" class="keyword-item shrink-0 grow-0 bg-brand-blue text-white p-sm justify-center items-center">
-              <span type="text" >{{ rule.keywords[index] }}</span>
+            <div v-for="(word, index) in rule.words" :key="index"
+              class="flex flex-row gap-sm shrink-0 grow-0 bg-brand-blue text-white px-sm justify-center items-center">
+              <CompleteMatchImg v-if="word.is_complete_matching" class="h-[1em] w-[1em]" />
+              <RegexpImg v-if="word.is_regexp" class="h-[1em] w-[1em]" />
+              <CaseSensitiveImg v-if="word.is_case_sensitive" class="h-[1em] w-[1em]" />
+              <IncludeUrlImg v-if="word.is_include_href" class="h-[1em] w-[1em]" />
+              <span type="text">{{ word.text }}</span>
               <button @click="removeKeyword(index)" class="p-0 shrink-0 grow-0">×</button>
             </div>
           </div>
           <div class="flex flex-row gap-md my-md">
-            <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" />
+            <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" class="shrink grow" />
             <button @click="addKeyword" class="bg-brand-blue grow-0 shrink-0 text-white px-md py-sm">Add</button>
-            <a class="help" href="keywords.html">?</a>
+            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')"><img
+                :src="helpUrl" class="h-[1.5em]" /></a>
           </div>
+          <div class="flex flex-row flex-wrap gap-sm">
+            <div class="flex flex-row gap-sm items-center mr-md">
+              <input type="checkbox" id="complete-match" v-model="completeMatch" />
+              <label for="complete-match" class="flex flex-row items-center">
+                <CompleteMatchImg class="h-[1em] w-[1em] mr-sm" />
+                Complete Match
+              </label>
+            </div>
+            <div class="flex flex-row gap-sm items-center mr-md">
+              <input type="checkbox" id="regex-match" v-model="regexMatch" />
+              <label for="regex-match" class="flex flex-row items-center">
+                <RegexpImg class="h-[1em] w-[1em] mr-sm" />
+                RegEx
+              </label>
+            </div>
+            <div class="flex flex-row gap-sm items-center mr-md">
+              <input type="checkbox" id="case-sensitive" v-model="caseSensitive" />
+              <label for="case-sensitive" class="flex flex-row items-center">
+                <CaseSensitiveImg class="h-[1em] w-[1em] mr-sm" />
+                Case Sensitive
+              </label>
+            </div>
+            <div class="flex flex-row gap-sm items-center">
+              <input type="checkbox" id="include-link-url" v-model="includeLinkUrl" />
+              <label for="include-link-url" class="flex flex-row items-center">
+                <IncludeUrlImg class="h-[1em] w-[1em] mr-sm" />
+                Include Link URL
+              </label>
+            </div>
+          </div>
+
 
           <h4>Search Range</h4>
           <div class="selector-section">
@@ -118,7 +165,8 @@
               </label>
               <div class="input-group flex flex-row shrink grow">
                 <input type="text" class="shrink grow" v-model="rule.search_block_xpath" />
-                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row" @click="pickPath('search_xpath')">
+                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
+                  @click="pickPath('search_xpath')">
                   <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
                 </button>
               </div>
@@ -129,7 +177,8 @@
               </label>
               <div class="input-group flex flex-row shrink grow">
                 <input type="text" class="shrink grow" v-model="rule.search_block_css" />
-                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row" @click="pickPath('search_css')">
+                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
+                  @click="pickPath('search_css')">
                   <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
                 </button>
               </div>
@@ -169,12 +218,24 @@ import { ref, computed } from 'vue'
 import PathPicker from './PathPicker.vue'
 import { getElementsByCssSelector, getElementsByXPath } from '~/utils';
 import wand from '~/assets/wand_transparent.png'
+import help from '~/assets/help_icon.png'
+import browser from 'webextension-polyfill';
+import RegexpImg from '~/components/img/Regex.vue'
+import CaseSensitiveImg from '~/components/img/CaseSensitive.vue'
+import CompleteMatchImg from '~/components/img/CompleteMatch.vue'
+import IncludeUrlImg from '~/components/img/IncludeUrl.vue'
+
 
 const wandUrl = new URL(wand, import.meta.url).href;
-
+const helpUrl = new URL(help, import.meta.url).href;
 const props = defineProps<{
   rule: Rule
 }>()
+
+const caseSensitive = ref(false)
+const regexMatch = ref(false)
+const completeMatch = ref(false)
+const includeLinkUrl = ref(false)
 
 const emit = defineEmits<{
   (e: 'save'): void
@@ -220,17 +281,41 @@ const isUrlValid = computed(() => {
 
 const addKeyword = () => {
   if (newKeyword.value.trim()) {
-    props.rule.keywords.push(newKeyword.value.trim())
+    const exists = props.rule.words.some(
+      word => word.text === newKeyword.value.trim()
+        && word.is_regexp === regexMatch.value
+        && word.is_complete_matching === completeMatch.value
+        && word.is_case_sensitive === caseSensitive.value
+        && word.is_include_href === includeLinkUrl.value
+    )
+    if (!exists) {
+      props.rule.words.push({
+        text: newKeyword.value.trim(),
+        is_regexp: regexMatch.value,
+        is_complete_matching: completeMatch.value,
+        is_case_sensitive: caseSensitive.value,
+        is_include_href: includeLinkUrl.value,
+      })
+    }
+    
     newKeyword.value = ''
+    completeMatch.value = false
+    regexMatch.value = false
+    caseSensitive.value = false
+    includeLinkUrl.value = false
   }
 }
 
 const removeKeyword = (index: number) => {
-  props.rule.keywords.splice(index, 1)
+  props.rule.words.splice(index, 1)
 }
 
 const pickPath = (type: string) => {
   emit('pick-path', type)
+}
+const openHelp = (url: string) => {
+  const fullUrl = browser.runtime.getURL(url)
+  window.open(fullUrl, 'new', 'width=450,height=500')
 }
 </script>
 
@@ -240,13 +325,16 @@ const pickPath = (type: string) => {
 }
 
 .section {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  margin-top: 16px;
 }
 
 .section h2 {
   font-size: 16px;
   font-weight: 500;
-  margin-bottom: 12px;
+  transform: translateY(-10px);
+  background-color: white;
 }
 
 .section-body {
@@ -287,11 +375,6 @@ const pickPath = (type: string) => {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 4px;
-}
-
-.keyword-item {
-  display: flex;
-  gap: 8px;
 }
 
 .keyword-item input {

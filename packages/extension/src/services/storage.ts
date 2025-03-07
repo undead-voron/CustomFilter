@@ -1,4 +1,4 @@
-import type { Rule } from '~/services/types'
+import type { Rule, Word, WordGroup } from '~/services/types'
 import { InjectableService } from 'deco-ext'
 import browser from 'webextension-polyfill'
 import { wildcardToRegExp } from '~/utils'
@@ -15,8 +15,8 @@ export default class RulesService {
       update_date: 0,
       delete_date: 0,
       updaterId: null,
-      words: [] as [Word],
-      wordGroups: [] as [WordGroup],
+      words: [] as Word[],
+      wordGroups: [] as WordGroup[],
       hideNodes: [] as [HTMLElement],
       searchNodes: [] as [HTMLElement],
       hiddenCount: 0,
