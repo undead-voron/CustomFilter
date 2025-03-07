@@ -9,13 +9,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, provide, inject, onMounted } from 'vue'
+import { ref,  unref, inject, } from 'vue'
 import type { Rule } from '~/services/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
 import useDraggable from '~/utils/useDraggable';
 import { isRuleValid } from '~/utils/validateRule';
-// import { usePathPickerDialog } from '~/utils';
 
 const props = defineProps<{
   initialRule: Rule
@@ -28,13 +27,9 @@ const emit = defineEmits<{
 const container = ref<HTMLElement | null>(null)
 const rule = ref<Rule>(props.initialRule)
 
-// const { show, close, getOnclickAction } = usePathPickerDialog()
-
 // Path picker state
 const showPathPicker = ref(false)
 const currentPathTarget = ref('')
-// const selectedElement = ref<HTMLElement | null>(null)
-// const pathPickerHandlers = ref<{ element: HTMLElement, handlers: any[] }[]>([])
 
 useDraggable(container);
 
@@ -50,11 +45,9 @@ const saveRuleFn = inject('saveRule') as (rule: Rule) => void
 
 const saveRule = async () => {
   const validationErrors = isRuleValid(rule.value)
-  console.log('validation errors', validationErrors, rule.value)
   if (!validationErrors.length) {
-    saveRuleFn(rule.value)
+    saveRuleFn(JSON.parse(JSON.stringify(unref(rule))))
   }
-  //await cbStorage.saveRule(rule.value)
 }
 
 const closeEditor = () => {
@@ -65,10 +58,6 @@ const closeEditor = () => {
 const startPathPicking = (target: string) => {
   currentPathTarget.value = target
   showPathPicker.value = true
-  // setupPathPickerHandlers()
-  // show(event, originNode, paths, target, pathPickerHandlers.value, (...args) => {
-  //   console.log('onSelect', args)
-  // })
 }
 
 const stopPathPicking = () => {
@@ -77,63 +66,6 @@ const stopPathPicking = () => {
   // selectedElement.value = null
   // removePathPickerHandlers()
 }
-
-// const setupPathPickerHandlers = () => {
-//   const nodes = document.body.getElementsByTagName('*')
-//   for (let i = 0; i < nodes.length; i++) {
-//     const node = nodes[i] as HTMLElement
-//     if (node.getAttribute('avoidStyle')) continue
-
-//     const mouseoverHandler = (event: MouseEvent) => {
-//       event.stopPropagation()
-//       event.preventDefault()
-//       selectedElement.value = node
-//       node.style.outline = '2px solid #2fb947'
-//     }
-
-//     const mouseoutHandler = (event: MouseEvent) => {
-//       event.stopPropagation()
-//       event.preventDefault()
-//       if (selectedElement.value === node) {
-//         node.style.outline = ''
-//       }
-//     }
-
-//     const clickHandler = (event: MouseEvent) => {
-//       event.stopPropagation()
-//       event.preventDefault()
-//       if (selectedElement.value === node) {
-//         // need to move it into pathpicker itself
-//         showPathPicker.value = true
-//         show(event, node, [], 'none', pathPickerHandlers.value, (...args) => {  
-//           console.log('onSelect', args)
-//         })
-//       }
-//     }
-
-//     node.addEventListener('mouseover', mouseoverHandler)
-//     node.addEventListener('mouseout', mouseoutHandler)
-//     node.addEventListener('click', clickHandler)
-
-//     pathPickerHandlers.value.push({
-//       element: node,
-//       handlers: [
-//         { type: 'mouseover', fn: mouseoverHandler },
-//         { type: 'mouseout', fn: mouseoutHandler },
-//         { type: 'click', fn: clickHandler }
-//       ]
-//     })
-//   }
-// }
-
-// const removePathPickerHandlers = () => {
-//   pathPickerHandlers.value.forEach(({ element, handlers }) => {
-//     handlers.forEach(handler => {
-//       element.removeEventListener(handler.type, handler.fn)
-//     })
-//   })
-//   pathPickerHandlers.value = []
-// }
 
 const onPathSelected = (data: { target: string, path: string }) => {
   switch (data.target) {
@@ -153,9 +85,6 @@ const onPathSelected = (data: { target: string, path: string }) => {
   stopPathPicking()
 }
 
-onUnmounted(() => {
-  // removePathPickerHandlers()
-})
 </script>
 
 <style>

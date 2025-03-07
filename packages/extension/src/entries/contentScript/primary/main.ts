@@ -1,12 +1,12 @@
+import { resolve } from 'deco-ext'
 import { createApp } from 'vue'
+import RulesExecutor from '~/services/rulesExecutor'
 import renderContent from '../renderContent'
 import Primary from './App.vue'
-import '~/services/rulesExecutor'
 import './app.service'
 
-renderContent(
-  import.meta.PLUGIN_WEB_EXT_CHUNK_CSS_PATHS,
-  (appRoot: HTMLElement) => {
-    // createApp(Primary).mount(appRoot)
-  },
-)
+(async () => {
+  const rulesExecutor = await resolve(RulesExecutor)
+  // this will read existing rules from storage and start executing it
+  await rulesExecutor.init()
+})()

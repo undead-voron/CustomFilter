@@ -1,17 +1,26 @@
 import type { Rule, Word } from './types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
 import { eachWords, findWord, getElementsByCssSelector, getElementsByXPath, isEmpty, wildcardToRegExp, xpathToCss } from '~/utils'
+import { HiddenNodes } from './stylesController'
+import RulesService from './storage'
 
 @InjectableService()
 export default class RulesExecutor {
   rules: Rule[] = []
   blockedCount = 0
   styleTag?: HTMLStyleElement
+  needExecBlock: boolean = true
+
+  blockInterval?: number
+  constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService) { }
+
   async init() {
     this.rules = await sendMessageToBackground('getRulesByURL', { url: location.href })
-    if (this.rules.length > 0) {
-      this.startBlocking()
-    }
+    // if (this.rules.length > 0) {
+    this.startBlocking();
+    this.rulesService.addRulesUpdateListener(async () => {
+      this.rules = await this.rulesService.getRulesByUrl(location.href)
+    })
   }
 
   startBlocking(): void {
@@ -86,19 +95,19 @@ export default class RulesExecutor {
 
   execBlock(): void {
     // TODO: fix it. move this somewhere
-    if (!needExecBlock) {
+    if (!this.needExecBlock) {
       return
     }
-    needExecBlock = false
+    // this.needExecBlock = false
     if (!this.rules)
       return
     for (let rule of this.rules) {
       if (!rule.is_disabled) {
         this.applyRule(rule, false, (node: HTMLElement) => {
-          hiddenNodeList.add(node)
+          this.hiddenNodesList.add(node)
           this.blockedCount++
           if (!rule.staticXpath) {
-            hiddenNodeList.apply(node)
+            this.hiddenNodesList.apply(node)
           }
         }, false)
       }
@@ -114,7 +123,7 @@ export default class RulesExecutor {
     this.styleTag.innerHTML = `${this.styleTag.innerHTML}${xpath}{display:none;}`
   }
 
-  applyRule(rule: Rule, ignoreHidden: boolean, onHide: (HTMLElement) => void, isTesting: boolean) {
+  applyRule(rule: Rule, ignoreHidden: boolean, onHide: (el: HTMLElement) => void, isTesting: boolean) {
     let needRefreshBadge = false
     const hideNodes = (rule.hide_block_by_css)
       ? getElementsByCssSelector(rule.hide_block_css)
@@ -140,7 +149,7 @@ export default class RulesExecutor {
       const foundWord = findWord(node, rule)
       if (foundWord != null) {
         node.containsNgWord = true
-        node.setAttribute('containsNgWord', true)
+        node.setAttribute('containsNgWord', 'true')
         node.setAttribute('foundWord', `${foundWord.word_id}`)
       }
     }

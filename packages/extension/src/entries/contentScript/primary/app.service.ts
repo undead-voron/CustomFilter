@@ -3,7 +3,7 @@ import { type App, createApp } from 'vue'
 import RulesEditor from '~/entries/contentScript/components/RuleEditor.vue'
 import ElementHighlighter from '~/services/elementsHighlighter'
 import RulesExecutor from '~/services/rulesExecutor'
-import CustomBlockerStorage from '~/services/storage'
+import RulesSevice from '~/services/storage'
 import { Rule } from '~/services/types'
 import renderContent from '../renderContent'
 
@@ -14,7 +14,7 @@ export default class Main {
   constructor(
     protected rulesExecutor: RulesExecutor,
     protected elementsHighliter: ElementHighlighter,
-    protected cbStorage: CustomBlockerStorage,
+    protected cbStorage: RulesSevice,
   ) {}
 
   async init() {

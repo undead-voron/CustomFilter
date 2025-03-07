@@ -1,21 +1,26 @@
 import type { Rule } from './types'
 import { InjectableService, messageData, onMessage, onTabActivated } from 'deco-ext'
 import browser from 'webextension-polyfill'
-import { wildcardToRegExp } from '~/utils'
-import {escapeStringForRegExp} from '~/utils/string-utils';
+import { RULES_STORAGE_KEY, wildcardToRegExp } from '~/utils'
+import { escapeStringForRegExp } from '~/utils/string-utils'
 
 @InjectableService()
 export default class RulesService {
-  appliedRules: Record<number, Rule[]> = {}
+  appliedRules: Rule[] = []
 
   async init() {
-    const { appliedRules = {} } = await browser.storage.local.get(['appliedRules'])
+    const { [RULES_STORAGE_KEY]: appliedRules = [] } = await browser.storage.local.get([RULES_STORAGE_KEY])
     this.appliedRules = appliedRules
+    browser.storage.local.onChanged.addListener((payload) => {
+      if (payload[RULES_STORAGE_KEY]) {
+        this.appliedRules = payload[RULES_STORAGE_KEY].newValue || []
+      }
+    })
   }
 
   @onMessage({ name: 'getRulesByURL' })
   async getRulesByURL(@messageData('url') url: string): Promise<Rule[]> {
-    const list: Rule[] = Object.values(this.appliedRules).flat()
+    const list: Rule[] = this.appliedRules
     const rules: Rule[] = []
     for (const rule of list) {
       try {
@@ -24,7 +29,7 @@ export default class RulesService {
           regex = new RegExp(rule.site_regexp, 'i')
         }
         else {
-          regex = new RegExp(wildcardToRegExp(escapeStringForRegExp(rule.url)), 'i')
+          regex = new RegExp(wildcardToRegExp(rule.url), 'i')
         }
         if (regex.test(url)) {
           rules.push(rule)
@@ -34,6 +39,7 @@ export default class RulesService {
         console.log(e)
       }
     }
+    console.log('returning rules', rules)
     return rules
   }
 
@@ -58,6 +64,6 @@ export default class RulesService {
     //   const appliedRules = Object.values(this.appliedRules).flat().filter(rule => rule.url === url)
     //   return appliedRules
     // }
-    return Object.values(this.appliedRules).flat()
+    return this.appliedRules
   }
 }
