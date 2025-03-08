@@ -5,16 +5,20 @@
       @pick-path="startPathPicking" />
     <PathPicker v-if="showPathPicker" :target-type="currentPathTarget" :selected-element="selectedElement"
       @path-selected="onPathSelected" @close="stopPathPicking" />
+    <div class="flex flex-row justify-center items-center absolute top-3 left-0 right-0">
+      <span v-if="isErrorNotificationVisible" class="text-center bg-red-500 text-white p-2 rounded-md">{{ errorMessage }}</span>
+      <span v-if="isSuccessNotificationVisible" class="text-center bg-green-500 text-white p-2 rounded-md">{{ successMessage }}</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref,  unref, inject, } from 'vue'
+import { ref,  unref, inject } from 'vue'
 import type { Rule } from '~/services/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
 import useDraggable from '~/utils/useDraggable';
-import { isRuleValid } from '~/utils/validateRule';
+import { isRuleValid, useNotification } from '~/utils';
 
 const props = defineProps<{
   initialRule: Rule
@@ -33,6 +37,9 @@ const currentPathTarget = ref('')
 
 useDraggable(container);
 
+const {isVisible: isErrorNotificationVisible, show: showErrorNotification, hide: hideErrorNotification} = useNotification()
+const {isVisible: isSuccessNotificationVisible, show: showSuccessNotification, hide: hideSuccessNotification} = useNotification()
+
 const applyRule = inject('applyRule') as (rule: Rule) => void
 console.log('applyRule', applyRule)
 const testRule = () => {
@@ -43,10 +50,18 @@ const testRule = () => {
 }
 const saveRuleFn = inject('saveRule') as (rule: Rule) => void
 
+const errorMessage = ref('')
+const successMessage = ref('')
+
 const saveRule = async () => {
   const validationErrors = isRuleValid(rule.value)
   if (!validationErrors.length) {
     saveRuleFn(JSON.parse(JSON.stringify(unref(rule))))
+    successMessage.value = 'Rule saved successfully'
+    showSuccessNotification()
+  } else {
+    showErrorNotification()
+    errorMessage.value = validationErrors.join('\n')
   }
 }
 
