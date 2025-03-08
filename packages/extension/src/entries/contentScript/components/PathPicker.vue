@@ -1,22 +1,16 @@
 <template>
-  <div v-if="isVisible" avoidStyle class="absolute z-max shadow-sm bg-white" ref="container" :style="{top: `${dialogPosition.top}px`, left: `${dialogPosition.left}px`}">
+  <div v-if="isVisible" avoidStyle class="absolute z-max shadow-sm bg-white" ref="container"
+    :style="{ top: `${dialogPosition.top}px`, left: `${dialogPosition.left}px` }">
     <ul class="path-list" avoidStyle>
       <li v-if="hasParentNode" class="upper" avoidStyle>
-        <a
-          avoidStyle
-          @click.prevent="parentNodeEventHandlers?.clickHandler"
-          @mouseover="parentNodeEventHandlers?.mouseoverHandler"
-          @mouseout="parentNodeEventHandlers?.mouseoutHandler"
-        >
+        <a avoidStyle @click.prevent="parentNodeEventHandlers?.clickHandler"
+          @mouseover="parentNodeEventHandlers?.mouseoverHandler" @mouseout="parentNodeEventHandlers?.mouseoutHandler">
           Select parent element
         </a>
       </li>
       <li v-for="(path, index) in menuListRef" :key="index" avoidStyle>
-        <a href="#" avoidStyle
-           @click.prevent="selectPath(path)"
-           @mouseover="previewPath(path)"
-           @mouseout="clearPreview">
-           
+        <a href="#" avoidStyle @click.prevent="selectPath(path)" @mouseover="previewPath(path)"
+          @mouseout="clearPreview">
           <span avoidStyle class="badge bg-brand-blue text-white">{{ path.elements.length }}</span>
           <span avoidStyle class="xpath">{{ trim(path.path) }}</span>
         </a>
@@ -28,16 +22,16 @@
 <script setup lang="ts">
 import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useXPathBuilder, useCssBuilder, usePathAnalyzer } from '~/composables/usePath'
-import { usePathPickerDialog, trim } from '~/utils';
+import { usePathPickerDialog, trim, useNodeHighlight } from '~/utils';
 
-
-const { show, getOnclickAction, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
+const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
 
 const props = defineProps<{
   targetType: string
 }>()
 
-const selectedElement = ref<HTMLElement | null>(null)
+// const selectedElement = ref<HTMLElement | null>(null)
+const { highlightNode, unhighlightNode, selectedElement, paths } = useNodeHighlight(props.targetType.endsWith('xpath'))
 const pathPickerHandlers = ref<{ element: HTMLElement, handlers: any[] }[]>([])
 
 const shadowRoot = inject('shadowRoot') as HTMLElement
@@ -54,7 +48,7 @@ const parentNodeEventHandlers = ref<{
   mouseoverHandler: (event: MouseEvent) => void,
   mouseoutHandler: (event: MouseEvent) => void,
   clickHandler: (event: MouseEvent) => void,
-} |  null>(null)
+} | null>(null)
 
 const title = computed(() => {
   const isHide = props.targetType.startsWith('hide')
@@ -63,15 +57,6 @@ const title = computed(() => {
 })
 
 const { createPathAnalyzer } = usePathAnalyzer()
-
-const paths = computed(() => {
-  if (!selectedElement.value) return [];
-  const isXPath = props.targetType.endsWith('xpath')
-  const builder = isXPath ? useXPathBuilder() : useCssBuilder()
-  const analyzer = createPathAnalyzer(selectedElement.value, builder)
-  return analyzer.createPathList()
-})
-
 
 const selectPath = (path: any) => {
   emit('path-selected', {
@@ -111,39 +96,38 @@ const close = () => {
   emit('close')
 }
 
-const t = (key: string) => {
-  // TODO: Implement proper i18n
-  return key
-}
-
-
-
 const buildMouseEventsHandlers = (node: HTMLElement, originalClickEvent?: MouseEvent) => {
+  function mouseoutHandler(event: MouseEvent) {
+    event.stopPropagation()
+    event.preventDefault()
+    unhighlightNode()
+  }
   return {
     mouseoverHandler: (event: MouseEvent) => {
       event.stopPropagation()
       event.preventDefault()
-      selectedElement.value = node
-      node.style.outline = '2px solid #2fb947'
+      highlightNode(node)
     },
-    mouseoutHandler: (event: MouseEvent) => {
-      event.stopPropagation()
-      event.preventDefault()
-      if (selectedElement.value === node) {
-        node.style.outline = ''
-      }
-    },
+    mouseoutHandler: mouseoutHandler,
     clickHandler: (event: MouseEvent) => {
       event.stopPropagation()
       event.preventDefault()
       if (selectedElement.value === node) {
-        
         isVisible.value = true
-        show(originalClickEvent || event, node, paths.value, 'none', pathPickerHandlers.value, (...args) => {  
+        show(originalClickEvent || event, node, paths.value, 'none', pathPickerHandlers.value, (...args) => {
           console.log('onSelect', args)
         })
         if (hasParentNode.value) {
-          parentNodeEventHandlers.value = buildMouseEventsHandlers(node.parentNode as HTMLElement, originalClickEvent || event)
+          const { mouseoverHandler, mouseoutHandler: parentMouseoutHandler, clickHandler } = buildMouseEventsHandlers(node.parentNode as HTMLElement, originalClickEvent || event)
+          parentNodeEventHandlers.value = {
+            mouseoverHandler,
+            mouseoutHandler: parentMouseoutHandler,
+            clickHandler: (event: MouseEvent) => {
+              mouseoutHandler(event);
+              mouseoverHandler(event);
+              clickHandler(event);
+            }
+          }
         } else {
           parentNodeEventHandlers.value = null
         }
@@ -157,36 +141,7 @@ const setupPathPickerHandlers = () => {
     const node = nodes[i] as HTMLElement
     if (node.getAttribute('avoidStyle')) continue
 
-    // const mouseoverHandler = (event: MouseEvent) => {
-    //   event.stopPropagation()
-    //   event.preventDefault()
-    //   selectedElement.value = node
-    //   node.style.outline = '2px solid #2fb947'
-    // }
-
-    // const mouseoutHandler = (event: MouseEvent) => {
-    //   event.stopPropagation()
-    //   event.preventDefault()
-    //   if (selectedElement.value === node) {
-    //     node.style.outline = ''
-    //   }
-    // }
-
-    // const clickHandler = (event: MouseEvent) => {
-    //   event.stopPropagation()
-    //   event.preventDefault()
-    //   if (selectedElement.value === node) {
-    //     // let analyzer = new PathAnalyzer(node, this.pathPickerTarget.getPathBuilder(), null, null);
-		// 	  // let paths = analyzer.createPathList();
-
-    //     // need to move it into pathpicker itself
-    //     isVisible.value = true
-    //     show(event, node, paths.value, 'none', pathPickerHandlers.value, (...args) => {  
-    //       console.log('onSelect', args)
-    //     })
-    //   }
-    // }
-    const {mouseoverHandler, mouseoutHandler, clickHandler} = buildMouseEventsHandlers(node)
+    const { mouseoverHandler, mouseoutHandler, clickHandler } = buildMouseEventsHandlers(node)
 
     node.addEventListener('mouseover', mouseoverHandler)
     node.addEventListener('mouseout', mouseoutHandler)
@@ -235,7 +190,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-
 .path-picker-header {
   display: flex;
   justify-content: space-between;
@@ -295,4 +249,4 @@ onBeforeUnmount(() => {
   padding-bottom: 8px;
   margin-bottom: 8px;
 }
-</style> 
+</style>

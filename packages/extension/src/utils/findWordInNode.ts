@@ -10,6 +10,7 @@ export function findWord(node: Element, rule: Rule): Word | null {
       return null
     }
     eachWords(rule, (word: Word) => {
+      // TODO: fix it. checkedNodes should not be stored here
       if (!word.checkedNodes) {
         word.checkedNodes = []
       }

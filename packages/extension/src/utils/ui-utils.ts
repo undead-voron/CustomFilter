@@ -35,7 +35,7 @@ export function getRuleDetailTip(rule: Rule): string | null {
   lines.push(wordStrings.join(', '))
 
   for (const group of rule.wordGroups) {
-    const str = `[${group.name}]${group.words.map((word) => { return getWordTip(word, rule.appliedWordsMap) }).join(',')}`
+    const str = `[${group.name}]${group.words.map(word => getWordTip(word, rule.appliedWordsMap)).join(',')}`
     lines.push(str)
   }
 
@@ -148,4 +148,3 @@ export function enableFlashZIndex(): void {
     }
   }
 }
-

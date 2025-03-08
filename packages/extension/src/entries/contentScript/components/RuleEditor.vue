@@ -3,8 +3,7 @@
     <div class="drag-handle"></div>
     <RuleEditorFrame :rule="rule" @save="saveRule" @test="testRule" @close="closeEditor"
       @pick-path="startPathPicking" />
-    <PathPicker v-if="showPathPicker" :target-type="currentPathTarget" :selected-element="selectedElement"
-      @path-selected="onPathSelected" @close="stopPathPicking" />
+    <PathPicker v-if="showPathPicker" :target-type="currentPathTarget" @path-selected="onPathSelected" @close="stopPathPicking" />
     <div class="flex flex-row justify-center items-center absolute top-3 left-0 right-0">
       <span v-if="isErrorNotificationVisible" class="text-center bg-red-500 text-white p-2 rounded-md">{{ errorMessage }}</span>
       <span v-if="isSuccessNotificationVisible" class="text-center bg-green-500 text-white p-2 rounded-md">{{ successMessage }}</span>

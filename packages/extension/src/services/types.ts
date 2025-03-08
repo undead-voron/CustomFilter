@@ -1,29 +1,11 @@
 export interface Word {
-  word_id: number
-  rule_id: number
-  word: string
-  newWord: Word
-  // Flags
+  text: string
 
+  // Flags
   is_regexp: boolean
   is_complete_matching: boolean
   is_case_sensitive: boolean
   is_include_href: boolean
-
-  // Copied from legacy DbObj
-  dirty: boolean
-  isNew: boolean
-  deleted: boolean
-  insert_date: number
-  update_date: number
-  delete_date: number
-
-  // Compiled and cached
-  regExp: RegExp
-
-  // TODO move to wrapper
-  checkedNodes: Element[]
-  label: string
 }
 export interface WordGroup {
   name: string
@@ -44,12 +26,6 @@ export interface Rule {
   // Copied from legacy Rule
   words: Word[]
   wordGroups: WordGroup[]
-
-  // TODO move to wrapper class!
-  hideNodes: HTMLElement[]
-  searchNodes: HTMLElement[]
-  hiddenCount: number
-  staticXpath: any // TODO What's this?
 
   appliedWords: any[]
   appliedWordsMap: object
@@ -73,7 +49,6 @@ export interface Rule {
 
   block_anyway: boolean
   specify_url_by_regexp: boolean
-  existing: boolean // TODO for import/export
 }
 export interface PathFilter {
   path: string
@@ -88,15 +63,16 @@ export interface PathBuilder {
   createPathFilter: (_path: string) => PathFilter
 }
 export interface RuleValidation {
-	title:string,
-	site_regexp:string,
-	search_block_xpath:string,
-	hide_block_xpath:string,
+  title: string
+  site_regexp: string
+  search_block_xpath: string
+  hide_block_xpath: string
 
-	example_url?:string;
-	site_description?:string;
-	search_block_css?:string;
-	search_block_description?:string;
-	hide_block_css?:string;
-	hide_block_description?:string;
+  example_url?: string
+  site_description?: string
+  search_block_css?: string
+  search_block_description?: string
+  hide_block_css?: string
+  hide_block_description?: string
 }
+
