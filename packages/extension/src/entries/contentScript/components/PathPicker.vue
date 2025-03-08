@@ -1,6 +1,6 @@
 <template>
   <div v-if="isVisible" avoidStyle class="absolute z-max shadow-sm bg-white" ref="container"
-    :style="{ top: `${dialogPosition.top}px`, left: `${dialogPosition.left}px` }">
+    :style="{ top: `${listPosition.top}px`, left: `${listPosition.left}px` }">
     <ul class="path-list" avoidStyle>
       <li v-if="hasParentNode" class="upper" avoidStyle>
         <a avoidStyle @click.prevent="parentNodeEventHandlers?.clickHandler"
@@ -21,10 +21,18 @@
 
 <script setup lang="ts">
 import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
-import { useXPathBuilder, useCssBuilder, usePathAnalyzer } from '~/composables/usePath'
+import { usePathAnalyzer } from '~/composables/usePath'
 import { usePathPickerDialog, trim, useNodeHighlight } from '~/utils';
 
 const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
+
+// shift list position to the right in order to avoid overlapping with selected element
+const listPosition = computed(() => {
+  return {
+    top: dialogPosition.value.top,
+    left: dialogPosition.value.left + 5,
+  }
+})
 
 const props = defineProps<{
   targetType: string
@@ -123,9 +131,8 @@ const buildMouseEventsHandlers = (node: HTMLElement, originalClickEvent?: MouseE
             mouseoverHandler,
             mouseoutHandler: parentMouseoutHandler,
             clickHandler: (event: MouseEvent) => {
-              mouseoutHandler(event);
-              mouseoverHandler(event);
               clickHandler(event);
+              mouseoverHandler(event);
             }
           }
         } else {
