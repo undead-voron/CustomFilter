@@ -39,10 +39,9 @@ useDraggable(container);
 const {isVisible: isErrorNotificationVisible, show: showErrorNotification, hide: hideErrorNotification} = useNotification()
 const {isVisible: isSuccessNotificationVisible, show: showSuccessNotification, hide: hideSuccessNotification} = useNotification()
 
-const applyRule = inject('applyRule') as (rule: Rule) => void
-console.log('applyRule', applyRule)
+const testRuleFunction = inject('testRule') as (rule: Rule) => void
 const testRule = () => {
-  applyRule(rule.value)
+  testRuleFunction(rule.value)
   //RuleExecutor.applyRule(rule.value, true, (node) => {
   //  ElementHighlighter.highlightHideElements([node])
   //}, false)

@@ -6,7 +6,7 @@ import RulesExecutor from '~/services/rulesExecutor'
 import RulesSevice from '~/services/storage'
 import { Rule } from '~/services/types'
 import renderContent from '../renderContent'
-
+import { TestNodes } from '~/services/stylesController'
 @InjectableService()
 export default class Main {
   ui?: App
@@ -15,6 +15,7 @@ export default class Main {
     protected rulesExecutor: RulesExecutor,
     protected elementsHighliter: ElementHighlighter,
     protected cbStorage: RulesSevice,
+    protected testNodesList: TestNodes,
   ) {}
 
   async init() {
@@ -60,10 +61,14 @@ export default class Main {
       .provide('highlightSearchElements', (el?: HTMLElement[]) => {
         this.elementsHighliter.highlightSearchElements(el)
       })
-      .provide('applyRule', (rule: Rule) => {
-        console.log('applying rule', rule)
+      .provide('testRule', (rule: Rule) => {
+        console.log('testing rule', rule)
         this.rulesExecutor.rules.push(rule)
-        // this.rulesExecutor.applyRule(rule, true, (...args) => { console.log('callback args', args) }, false)
+        this.rulesExecutor.applyRule(rule, true, (node: HTMLElement) => { 
+          console.log('callback args', node)
+          this.testNodesList.add(node)
+          this.testNodesList.apply(node)
+        }, true)
         this.rulesExecutor.execBlock()
       })
       .provide('shadowRoot', this.appRoot.parentNode)
