@@ -1,8 +1,8 @@
 import type { Rule, Word } from './types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
-import { eachWords, findWord, getElementsByCssSelector, getElementsByXPath, isEmpty, wildcardToRegExp, xpathToCss } from '~/utils'
-import { HiddenNodes } from './stylesController'
+import { eachWords, findWord, getElementsByCssSelector, getElementsByXPath, isEmpty, xpathToCss, getXPathCssSelector } from '~/utils'
 import RulesService from './storage'
+import { HiddenNodes } from './stylesController'
 
 @InjectableService()
 export default class RulesExecutor {
@@ -12,38 +12,39 @@ export default class RulesExecutor {
   needExecBlock: boolean = true
 
   blockInterval?: number
-  constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService) { }
+  constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService ) { }
 
   async init() {
     this.rules = await sendMessageToBackground('getRulesByURL', { url: location.href })
     // if (this.rules.length > 0) {
-    this.startBlocking();
+    this.startBlocking()
     this.rulesService.addRulesUpdateListener(async () => {
+      console.log('rules updated')
+      
       this.rules = await this.rulesService.getRulesByUrl(location.href)
+      clearInterval(this.blockInterval)
+      this.startBlocking()
     })
   }
 
   startBlocking(): void {
     for (const rule of this.rules) {
-      if (rule.block_anyway && !rule.is_disabled) {
-        const cssSelector = (rule.hide_block_by_css)
-          ? rule.hide_block_css
-          : xpathToCss(rule.hide_block_xpath)
-        if (cssSelector != null) {
-          this.addBlockCss(cssSelector)
-          rule.staticXpath = cssSelector
-        }
+      const cssSelector = getXPathCssSelector(rule)
+      if (cssSelector) {
+        this.addBlockCss(cssSelector)
       }
       // Set labels for tooltips in pop-up window
       for (const word of rule.words) {
         word.label = String(word.word)
       }
+      // TODO: add word groups later
       for (const group of rule.wordGroups) {
         for (const word of group.words) {
           word.label = `${String(group.name)}>${String(word.word)}`
         }
       }
       let wordIdIncr = 0
+      // this stuff mutates words. TODO: refactore it
       eachWords(rule, (word: Word) => {
         word.word_id = wordIdIncr++
         if (word.is_regexp) {
@@ -80,6 +81,8 @@ export default class RulesExecutor {
       if (!rule.is_disabled)
         needBlocking = true
     }
+    console.log('checking blocking', needBlocking, this.rules)
+    // TODO: consider removing this condition. I see no point in it. Just execute the block itself
     if (needBlocking) {
       for (let after = 50; after < 250; after += 50) {
         setTimeout(() => {
@@ -101,12 +104,12 @@ export default class RulesExecutor {
     // this.needExecBlock = false
     if (!this.rules)
       return
-    for (let rule of this.rules) {
+    for (const rule of this.rules) {
       if (!rule.is_disabled) {
         this.applyRule(rule, false, (node: HTMLElement) => {
           this.hiddenNodesList.add(node)
           this.blockedCount++
-          if (!rule.staticXpath) {
+          if (!getXPathCssSelector(rule)) {
             this.hiddenNodesList.apply(node)
           }
         }, false)
@@ -139,7 +142,7 @@ export default class RulesExecutor {
     else {
       searchNodes = (rule.block_anyway)
         ? []
-        : ((rule.search_block_by_css) ? getElementsByCssSelector(rule.search_block_css) : getElementsByXPath(rule.search_block_xpath))
+        : ((rule.search_block_by_css) ? getElementsByCssSelector(rule.search_block_css) : getElementsByXPath(rule.search_block_xpath)) as HTMLElement[]
     }
     for (const node of searchNodes) {
       // Check keywords

@@ -1,6 +1,8 @@
 <template>
   <div class="rule-editor flex flex-col bg-white z-max" ref="container">
-    <div class="drag-handle"></div>
+    <div class="drag-handle flex flex-row justify-end items-center">
+      <button @click.stop.prevent.capture="closeEditor" class="px-md">×</button>
+    </div>
     <RuleEditorFrame :rule="rule" @save="saveRule" @test="testRule" @close="closeEditor"
       @pick-path="startPathPicking" />
     <PathPicker v-if="showPathPicker" :target-type="currentPathTarget" @path-selected="onPathSelected" @close="stopPathPicking" />
@@ -24,7 +26,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'close'): void
+  (e: 'close'): void,
+  (e: 'closeEditor'): void
 }>()
 
 const container = ref<HTMLElement | null>(null)
@@ -66,6 +69,7 @@ const saveRule = async () => {
 const closeEditor = () => {
   stopPathPicking()
   emit('close')
+  emit('closeEditor')
 }
 
 const startPathPicking = (target: string) => {

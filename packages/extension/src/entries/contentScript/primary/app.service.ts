@@ -51,7 +51,7 @@ export default class Main {
     // TODO: handle it. Find out how app opens ui
     // this.ui.mount(this.appRoot)
     const props = this.cbStorage.createRule()
-    createApp(RulesEditor, { initialRule: props })
+    this.ui = createApp(RulesEditor, { initialRule: props, onCloseEditor: () => this.unmount() })
       .provide('saveRule', (rule: Rule) => {
         this.cbStorage.saveRule(rule)
       })
@@ -71,8 +71,9 @@ export default class Main {
         }, true)
         this.rulesExecutor.execBlock()
       })
-      .provide('shadowRoot', this.appRoot.parentNode)
-      .mount(this.appRoot)
+      .provide('shadowRoot', this.appRoot.parentNode);
+
+    this.ui.mount(this.appRoot)
   }
 
   unmount() {
