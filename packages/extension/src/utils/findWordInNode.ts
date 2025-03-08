@@ -1,23 +1,13 @@
 import type { Rule, Word } from '~/services/types'
-import { arrayContains } from './array-utils'
-import { eachWords } from './word-utils'
 
 export function findWord(node: Element, rule: Rule): Word | null {
-  let foundWord: Word | null = null
   try {
     let _text = node.textContent || ''
     if (!(_text.length > 0)) {
       return null
     }
-    eachWords(rule, (word: Word) => {
-      // TODO: fix it. checkedNodes should not be stored here
-      if (!word.checkedNodes) {
-        word.checkedNodes = []
-      }
-      if (arrayContains(word.checkedNodes, node)) {
-        return
-      }
-      word.checkedNodes.push(node)
+    // TODO: fix it. can just use rule.words.some
+    return rule.words.find((word) => {
       if (word.is_include_href) {
         const links: HTMLAnchorElement[] = []
         if (node.tagName === 'A') {
@@ -35,33 +25,37 @@ export function findWord(node: Element, rule: Rule): Word | null {
         }
       }
       const text = (word.is_case_sensitive) ? _text : _text.toLowerCase()
-      const w = (word.is_case_sensitive) ? word.word : word.word.toLowerCase()
-      if (word.deleted) {
-        return
-      }
+      const w = (word.is_case_sensitive) ? word.text : word.text.toLowerCase()
+
       if (word.is_regexp) {
-        if (word.regExp && word.regExp.test(text)) {
-          foundWord = word
+        try {
+          const regExpFlags = word.is_case_sensitive ? '' : 'i'
+          const regExp = new RegExp(word.text, regExpFlags)
+          if (regExp.test(text)) {
+            return word
+          }
+        } catch (ex) {
+          console.log('RuleEx ERROR')
+          console.log(ex)
         }
       }
       else {
         if (word.is_complete_matching) {
           if (text === w) {
-            foundWord = word
+            return word
           }
         }
         else {
           if (text.includes(w)) {
-            foundWord = word
+            return word
           }
         }
       }
-    })
+    }) || null
   }
   catch (ex) {
     console.log('RuleEx ERROR')
     console.log(ex)
     return null
   }
-  return foundWord
 }
