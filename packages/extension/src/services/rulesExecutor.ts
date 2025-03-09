@@ -1,8 +1,9 @@
 import type { Rule, Word } from './types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
-import { eachWords, findWord, getElementsByCssSelector, getElementsByXPath, isEmpty, xpathToCss, getXPathCssSelector } from '~/utils'
+import { findWord, getElementsByCssSelector, getElementsByXPath, isEmpty, getXPathCssSelector } from '~/utils'
 import RulesService from './storage'
 import { HiddenNodes } from './stylesController'
+import ExtensionStateService from './extensionState'
 
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
   let inThrottle = false;
@@ -33,14 +34,16 @@ export default class RulesExecutor {
   styleTag?: HTMLStyleElement
   needExecBlock: boolean = true
   mutationObserver?: MutationObserver
-  throttledExecuteHideRules: () => void
+  throttledExecuteHideRules: () => void = throttle(() => {
+    this.executeHideRules();
+  }, 250);
   blockedNodesByRuleCount = new Map<Rule, number>()
 
-  constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService ) {
-    this.throttledExecuteHideRules = throttle(() => {
-      this.executeHideRules();
-    }, 250);
-  }
+  constructor(
+    public hiddenNodesList: HiddenNodes,
+    public rulesService: RulesService,
+    public extensionState: ExtensionStateService
+  ) { }
 
   async init() {
     this.rules = await sendMessageToBackground('getRulesByURL', { url: location.href })
@@ -50,6 +53,13 @@ export default class RulesExecutor {
       this.revert()
       this.rules = await this.rulesService.getRulesByUrl(location.href)
       this.startBlocking()
+    })
+    this.extensionState.addStateUpdateListener(async () => {
+      this.revert()
+      if (!this.extensionState.isDisabled) {
+        this.rules = await this.rulesService.getRulesByUrl(location.href)
+        this.startBlocking()
+      }
     })
   }
 
@@ -77,6 +87,9 @@ export default class RulesExecutor {
   }
 
   startBlocking() {
+    if (this.extensionState.isDisabled) {
+      return
+    }
     console.log('start blocking', this.rules)
     for (const rule of this.rules) {
       const cssSelector = getXPathCssSelector(rule)
@@ -215,6 +228,9 @@ export default class RulesExecutor {
     }
   }
   executeHideRules() {
+    if (this.extensionState.isDisabled) {
+      return
+    }
     this.hiddenNodesList.clearDetachedNodes()
     for (const rule of this.rules) {
       if (!rule.is_disabled) {

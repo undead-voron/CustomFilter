@@ -1,4 +1,4 @@
-import { InjectableService, messageData, messageSender, onMessage, onTabUpdated, sendMessageToContent, tabUpdatedDetails, tabUpdatedTab } from 'deco-ext'
+import { InjectableService, messageData, messageSender, onInstalled, onMessage, onTabUpdated, sendMessageToContent, tabUpdatedDetails, tabUpdatedTab } from 'deco-ext'
 import browser from 'webextension-polyfill'
 
 @InjectableService()
@@ -37,5 +37,11 @@ export default class TabsManager {
     if (details.status === 'complite') {
       this.setBadge('', tabId)
     }
+  }
+
+  @onInstalled({reason: 'install'})
+  async onInstalled() {
+    // await browser.tabs.create({ url: browser.runtime.getURL('./src/entries/post_install/index.html') })
+    await this.openPreferences()
   }
 }

@@ -7,6 +7,8 @@ import RulesSevice from '~/services/storage'
 import { Rule } from '~/services/types'
 import renderContent from '../renderContent'
 import { TestNodes } from '~/services/stylesController'
+import ExtensionStateService from '~/services/extensionState'
+
 @InjectableService()
 export default class Main {
   ui?: App
@@ -16,6 +18,7 @@ export default class Main {
     protected elementsHighliter: ElementHighlighter,
     protected cbStorage: RulesSevice,
     protected testNodesList: TestNodes,
+    protected extensionState: ExtensionStateService
   ) {}
 
   async init() {
@@ -25,6 +28,11 @@ export default class Main {
         this.appRoot = appRoot
       },
     )
+    this.extensionState.addStateUpdateListener(() => {
+      if (this.extensionState.isDisabled) {
+        this.unmount()
+      }
+    })
   }
 
   @onMessage({ name: 'createRule' })

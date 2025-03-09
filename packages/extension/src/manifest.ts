@@ -28,8 +28,6 @@ const sharedManifest: Partial<chrome.runtime.ManifestBase> = {
     'tabs',
     'notifications',
     'webNavigation',
-    'nativeMessaging',
-    'cookies',
     'unlimitedStorage',
     'activeTab',
   ],

@@ -1,25 +1,26 @@
 <template>
-  <div class="popup">
+  <div class="popup flex flex-col grow shrink">
     <div class="flex flex-row items-center justify-between">
       <h1><img src="../img/top_title.png" width="156" alt="CustomBlocker" /></h1>
-      <div class="flex flex-row items-center gap-md">
+      <div class="flex flex-row items-center gap-lg px-md">
         <div class="flex flex-row items-center gap-sm">
-          <input type="radio" name="extension_enable" id="buttonOn" v-model="isEnabled" :value="true" @change="setEnabledState($event.target.checked)" />
+          <input type="radio" name="extension_enable" id="buttonOn" :value="false" v-model="isDisabled" @change="setEnabledState(true)" />
           <label for="buttonOn">ON</label>
         </div>
         <div class="flex flex-row items-center gap-sm">
-          <input type="radio" name="extension_enable" id="buttonOff" v-model="isEnabled" :value="false" @change="setEnabledState(!$event.target.checked)" />
+          <input type="radio" name="extension_enable" id="buttonOff" :value="true" v-model="isDisabled" @change="setEnabledState(false)" />
           <label for="buttonOff">OFF</label>
         </div>
-        <a href="#" @click.prevent="openPreferences">
-          <span>Preferences</span>
+        <a href="#" @click.prevent="openPreferences" class="px-lg">
+          <!-- <span>Preferences</span> -->
+          <span>Help</span>
         </a>
       </div>
       
     </div>
 
-    <div class="content">
-      <div class="rule-section">
+    <div class="content flex flex-col grow shrink">
+      <div class="flex flex-col gap-md grow shrink">
         <div class="rule-section-header">
           <h2>Active Rules</h2>
         </div>
@@ -40,19 +41,19 @@
         </ul>
       </div>
 
-      <div class="version">Version <span>{{ version }}</span></div>
-      <div>
-        <a href="#" class="create-rule-button" @click.prevent="createRule">
-          Create a new rule for this site
+      <div class="flex flex-row justify-end text-[10px]">Version <span>{{ version }}</span></div>
+      <div class="flex flex-row">
+        <a href="#" class="create-rule-button flex flex-row items-center" @click.prevent="createRule">
+          <Plus width="1.2em" height="1.2em" class="mr-sm" /> Create a new rule for this site
         </a>
       </div>
 
-      <div v-if="showKeywordGroupNote" class="note note--dismissable">
+      <!-- <div v-if="showKeywordGroupNote" class="note note--dismissable">
         <a :href="keywordGroupUrl" target="_blank" class="note__link">
           Keyword groups feature is supported in version 4.x!
         </a>
         <a href="#" class="note__dismiss" @click.prevent="dismissKeywordGroupNote">×</a>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -63,9 +64,10 @@ import RuleListItem from './components/RuleListItem.vue'
 import type { Rule } from '../types'
 import {sendMessageToBackground} from 'deco-ext'
 import browser from 'webextension-polyfill'
-import { isExtensionEnabled, RULES_STORAGE_KEY, setExtensionEnabledState, useBrowserStorage, wildcardToRegExp } from '~/utils'
+import Plus from '~/components/img/Plus.vue'
+import { RULES_STORAGE_KEY, EXTENSION_DISABLED_STORAGE_KEY, useBrowserStorage, wildcardToRegExp } from '~/utils'
 
-const isEnabled = ref(true)
+// const isEnabled = ref(true)
 const version = ref(`${browser.runtime.getManifest().version}`)
 const showKeywordGroupNote = ref(true)
 const keywordGroupUrl = 'pref/word_group.html'
@@ -73,6 +75,7 @@ const keywordGroupUrl = 'pref/word_group.html'
 const props = defineProps<{activeUrl: string}>()
 
 const {value: rules} = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
+const {value: isDisabled} = useBrowserStorage<boolean>(EXTENSION_DISABLED_STORAGE_KEY, false)
 
 const activeRules = computed(() => {
   return rules.value.filter(rule => {
@@ -126,22 +129,10 @@ const dismissKeywordGroupNote = () => {
 }
 
 const setEnabledState = async (isEnabled: boolean) => {
-  await setExtensionEnabledState(isEnabled)
+  console.log('setEnabledState', isEnabled)
+  browser.storage.local.set({ [EXTENSION_DISABLED_STORAGE_KEY]: !isEnabled })
 }
 
-const updateEnabledState = async () => {
-  isEnabled.value = await isExtensionEnabled()
-}
-
-onMounted(async () => {
-  // TODO: Load initial state
-  // - Load active rules
-  // - Load version
-  // - Load keyword group note dismissal state
-  await updateEnabledState()
-  // const dismissed = await sendMessageToBackground('getKeywordGroupNoteDismissalState', {})
-  // showKeywordGroupNote.value = dismissed
-})
 </script>
 
 <style>
@@ -151,6 +142,7 @@ onMounted(async () => {
 
 .popup {
   width: 480px;
+  min-height: 180px;
   margin: 0;
   padding: 7px;
   font-family: 'Hiragino Kaku Gothic ProN', 'YuGothic', 'Yu Gothic', 'Meiryo', 'MS Gothic', 'Lucida Grande', 'Helvetica', 'Arial', sans-serif;
@@ -226,14 +218,8 @@ onMounted(async () => {
 
 .create-rule-button {
   color: #666;
-  background: url(../assets/img/button/add.png) no-repeat;
-  background-size: 16px 16px;
-  text-indent: 20px;
-  display: inline-block;
-  height: 16px;
   font-size: 14px;
   text-decoration: none;
-  margin: 0.5em 0;
 }
 
 .create-rule-button:hover {

@@ -1,8 +1,5 @@
 import { resolve } from 'deco-ext'
-import { createApp } from 'vue'
 import RulesExecutor from '~/services/rulesExecutor'
-import renderContent from '../renderContent'
-import Primary from './App.vue'
 import './app.service'
 
 (async () => {
