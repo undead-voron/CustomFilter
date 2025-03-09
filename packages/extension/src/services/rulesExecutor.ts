@@ -4,16 +4,43 @@ import { eachWords, findWord, getElementsByCssSelector, getElementsByXPath, isEm
 import RulesService from './storage'
 import { HiddenNodes } from './stylesController'
 
+function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
+  let inThrottle = false;
+  let shouldExecute = false;
+  
+  const throttled = ((...args: any[]) => {
+    if (!inThrottle) {
+      inThrottle = true;
+      shouldExecute = false;
+      func(...args);
+      setTimeout(() => {
+        inThrottle = false;
+        if (shouldExecute) {
+          throttled()
+        }
+      }, limit);
+    } else {
+      shouldExecute = true;
+    }
+  }) as T;
+  return throttled;
+}
+
 @InjectableService()
 export default class RulesExecutor {
   rules: Rule[] = []
   blockedCount = 0
   styleTag?: HTMLStyleElement
   needExecBlock: boolean = true
-  blockInterval?: number
+  mutationObserver?: MutationObserver
+  throttledExecuteHideRules: () => void
   blockedNodesByRuleCount = new Map<Rule, number>()
 
-  constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService ) { }
+  constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService ) {
+    this.throttledExecuteHideRules = throttle(() => {
+      this.executeHideRules();
+    }, 250);
+  }
 
   async init() {
     this.rules = await sendMessageToBackground('getRulesByURL', { url: location.href })
@@ -26,10 +53,10 @@ export default class RulesExecutor {
     })
   }
 
-  
-
   stopBlocking() {
-    clearInterval(this.blockInterval)
+    if (this.mutationObserver) {
+      this.mutationObserver.disconnect();
+    }
     return this
   }
 
@@ -108,9 +135,26 @@ export default class RulesExecutor {
     console.log('checking blocking', needBlocking, this.rules)
     // TODO: consider removing this condition. I see no point in it. Just execute the block itself
     if (needBlocking) {
-      this.blockInterval = setInterval(() => {
-        this.executeHideRules()
-      }, 250)
+      // Execute hide rules immediately once
+      this.executeHideRules();
+      
+      // Set up MutationObserver to watch for DOM changes
+      this.mutationObserver = this.mutationObserver || new MutationObserver(this.throttledExecuteHideRules);
+      
+      try {
+        // disconnect existing observer just in case
+        this.mutationObserver.disconnect();
+      } catch (e) {
+        // ignore
+      }
+      
+      // Start observing the document with configured parameters
+      this.mutationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      });
     }
     return this
   }
@@ -131,15 +175,10 @@ export default class RulesExecutor {
     return this
   }
 
-  getNodesForRule(rule: Rule) {
-    const blockingNodes = ((rule.hide_block_by_css)
+  getAllNodesForRule(rule: Rule) {
+    const containerNodes = ((rule.hide_block_by_css)
       ? getElementsByCssSelector(rule.hide_block_css)
       : getElementsByXPath(rule.hide_block_xpath)) as HTMLElement[]
-
-    const containerNodes = blockingNodes.filter((node): boolean => {
-      // filter out hidden nodes
-      return node.style.display !== 'none'
-    })
 
     const isValidCssSearchBlock = (rule.search_block_by_css && isEmpty(rule.search_block_css))
     const isValidXPathSearchBlock = (!rule.search_block_by_css && isEmpty(rule.search_block_xpath))
@@ -158,6 +197,10 @@ export default class RulesExecutor {
     const searchNodesWithKeyword = searchNodes.filter((node): boolean => !!findWord(node, rule))
 
     return containerNodes.filter((node): boolean => rule.block_anyway || searchNodesWithKeyword.some(searchNode => node.contains(searchNode) || searchNode === node))
+  }
+
+  getNodesForRule(rule: Rule) {
+    return this.getAllNodesForRule(rule).filter((node): boolean => node.style.display !== 'none')
   }
 
   executeRule(rule: Rule) {

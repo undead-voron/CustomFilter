@@ -36,6 +36,10 @@ abstract class StyleProcessor {
     }
   }
 
+  hasNode(node: HTMLElement) {
+    return this.originalNodeStylesContainer.has(node)
+  }
+
 }
 
 @InjectableService()
