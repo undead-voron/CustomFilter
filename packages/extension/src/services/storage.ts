@@ -61,9 +61,9 @@ export default class RulesService {
       const storage = await browser.storage.local.get(RULES_STORAGE_KEY)
       const rules: Rule[] = storage[RULES_STORAGE_KEY] || []
 
-      if (rule.id) {
+      if (rule.rule_id) {
         // Update existing rule
-        const index = rules.findIndex(r => r.id === rule.id)
+        const index = rules.findIndex(r => r.rule_id === rule.rule_id)
         if (index !== -1) {
           rules[index] = { ...rule }
         }
@@ -73,7 +73,7 @@ export default class RulesService {
       }
       else {
         // Add new rule with generated ID
-        rule.id = Date.now()
+        rule.rule_id = Date.now()
         rules.push(rule)
       }
 
@@ -137,7 +137,7 @@ export default class RulesService {
     try {
       const storage = await browser.storage.local.get(RULES_STORAGE_KEY)
       const rules: Rule[] = storage[RULES_STORAGE_KEY] || []
-      const filteredRules = rules.filter(rule => rule.id !== ruleId)
+      const filteredRules = rules.filter(rule => rule.rule_id !== ruleId)
       await browser.storage.local.set({ [RULES_STORAGE_KEY]: filteredRules })
     }
     catch (error) {
@@ -160,7 +160,7 @@ export default class RulesService {
     try {
       const storage = await browser.storage.local.get(RULES_STORAGE_KEY)
       const rules: Rule[] = storage[RULES_STORAGE_KEY] || []
-      const rule = rules.find(r => r.id === ruleId)
+      const rule = rules.find(r => r.rule_id === ruleId)
       if (rule) {
         rule.is_disabled = false
         await browser.storage.local.set({ [RULES_STORAGE_KEY]: rules })
@@ -181,7 +181,7 @@ export default class RulesService {
     try {
       const storage = await browser.storage.local.get(RULES_STORAGE_KEY)
       const rules: Rule[] = storage[RULES_STORAGE_KEY] || []
-      const rule = rules.find(r => r.id === ruleId)
+      const rule = rules.find(r => r.rule_id === ruleId)
       if (rule) {
         rule.is_disabled = true
         await browser.storage.local.set({ [RULES_STORAGE_KEY]: rules })

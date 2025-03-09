@@ -20,8 +20,7 @@
           <input v-if="rule.specify_url_by_regexp" type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
           <input v-else type="text" class="flex-1 shrink grow" v-model="rule.url" />
 
-          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')"><img :src="helpUrl"
-              class="h-[1.5em]" /></a>
+          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')"><QuestionMarkImg class="h-[1.75em] w-[1.75em] text-black" /></a>
         </div>
         <div class="flex flex-row gap-sm items-center">
           <input type="checkbox" id="specify-url-regexp" v-model="rule.specify_url_by_regexp" />
@@ -93,12 +92,11 @@
         <h2 class="px-sm">Condition</h2>
       </div>
       <div class="section-body">
-        <div class="condition-type">
+        <div class="flex flex-col gap-sm">
           <div class="flex flex-row gap-sm items-center">
             <input type="radio" id="block-anyway" :value="true" v-model="rule.block_anyway" />
             <label for="block-anyway">Block Anyway</label>
-            <a class="help flex items-center justify-center" @click="openHelp('/help/block_anyway.html')"><img
-                :src="helpUrl" class="h-[1.5em]" /></a>
+            <a class="flex items-center justify-center" @click="openHelp('/help/block_anyway.html')"><QuestionMarkImg class="h-[1.5em] w-[1.5em]" /></a>
           </div>
           <div class="flex flex-row gap-sm">
             <input type="radio" id="block-with-keywords" :value="false" v-model="rule.block_anyway" />
@@ -122,8 +120,7 @@
           <div class="flex flex-row gap-md my-md">
             <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" class="shrink grow" />
             <button @click="addKeyword" class="bg-brand-blue grow-0 shrink-0 text-white px-md py-sm">Add</button>
-            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')"><img
-                :src="helpUrl" class="h-[1.5em]" /></a>
+            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')"><QuestionMarkImg class="h-[1.75em] w-[1.75em] text-black" /></a>
           </div>
           <div class="flex flex-row flex-wrap gap-sm">
             <div class="flex flex-row gap-sm items-center mr-md">
@@ -224,6 +221,7 @@ import RegexpImg from '~/components/img/Regex.vue'
 import CaseSensitiveImg from '~/components/img/CaseSensitive.vue'
 import CompleteMatchImg from '~/components/img/CompleteMatch.vue'
 import IncludeUrlImg from '~/components/img/IncludeUrl.vue'
+import QuestionMarkImg from '~/components/img/QuestionMark.vue'
 
 
 const wandUrl = new URL(wand, import.meta.url).href;
@@ -274,8 +272,8 @@ const searchElementsCount = computed(() => {
 
 const isUrlValid = computed(() => {
   const regexp = props.rule.specify_url_by_regexp
-    ? new RegExp(props.rule.site_regexp)
-    : new RegExp(props.rule.site_regexp.replace(/\*/g, '.*'))
+    ? new RegExp(props.rule.site_regexp, 'i')
+    : new RegExp(props.rule.site_regexp.replace(/\*/g, '.*'), 'i')
   return regexp.test(window.location.href)
 })
 

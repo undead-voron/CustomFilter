@@ -132,7 +132,7 @@ const buildMouseEventsHandlers = (node: HTMLElement, originalClickEvent?: MouseE
             mouseoutHandler: parentMouseoutHandler,
             clickHandler: (event: MouseEvent) => {
               clickHandler(event);
-              mouseoverHandler(event);
+              parentNodeEventHandlers.value?.mouseoverHandler(event);
             }
           }
         } else {
