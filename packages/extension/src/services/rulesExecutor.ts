@@ -10,71 +10,95 @@ export default class RulesExecutor {
   blockedCount = 0
   styleTag?: HTMLStyleElement
   needExecBlock: boolean = true
-
   blockInterval?: number
+  blockedNodesByRuleCount = new Map<Rule, number>()
+
   constructor(public hiddenNodesList: HiddenNodes, public rulesService: RulesService ) { }
 
   async init() {
     this.rules = await sendMessageToBackground('getRulesByURL', { url: location.href })
-    // if (this.rules.length > 0) {
     this.startBlocking()
     this.rulesService.addRulesUpdateListener(async () => {
-      console.log('rules updated')
-      
+      // react to rules change (independent from source of change) and re-start blocking
+      this.revert()
       this.rules = await this.rulesService.getRulesByUrl(location.href)
-      clearInterval(this.blockInterval)
       this.startBlocking()
     })
   }
 
-  startBlocking(): void {
+  
+
+  stopBlocking() {
+    clearInterval(this.blockInterval)
+    return this
+  }
+
+  clearRules() {
+    this.rules = []
+    return this
+  }
+
+  revert() {
+    this
+      .stopBlocking()
+      .clearRules()
+      .removeBlockCss()
+      .hiddenNodesList
+        .revertAll()
+
+    return this
+  }
+
+  startBlocking() {
+    console.log('start blocking', this.rules)
     for (const rule of this.rules) {
       const cssSelector = getXPathCssSelector(rule)
       if (cssSelector) {
         this.addBlockCss(cssSelector)
       }
       // Set labels for tooltips in pop-up window
-      for (const word of rule.words) {
-        word.label = String(word.word)
-      }
-      // TODO: add word groups later
-      for (const group of rule.wordGroups) {
-        for (const word of group.words) {
-          word.label = `${String(group.name)}>${String(word.word)}`
-        }
-      }
-      let wordIdIncr = 0
-      // this stuff mutates words. TODO: refactore it
-      eachWords(rule, (word: Word) => {
-        word.word_id = wordIdIncr++
-        if (word.is_regexp) {
-          try {
-            if (word.is_complete_matching) {
-              // Append "^" and "$"
-              let expression = (word.word.charAt(0) !== '^') ? '^' : ''
-              expression += word.word
-              expression += ((word.word.charAt(word.word.length - 1) !== '$') ? '$' : '')
-              if (word.is_case_sensitive) {
-                word.regExp = new RegExp(expression)
-              }
-              else {
-                word.regExp = new RegExp(expression, 'i')
-              }
-            }
-            else {
-              if (word.is_case_sensitive) {
-                word.regExp = new RegExp(word.word)
-              }
-              else {
-                word.regExp = new RegExp(word.word, 'i')
-              }
-            }
-          }
-          catch (ex) {
-            console.log(`Invalid RegExp: "${word.word}"`)
-          }
-        }
-      })
+      // for (const word of rule.words) {
+      //   word.label = String(word.word)
+      // }
+      // // TODO: add word groups later
+      // for (const group of rule.wordGroups) {
+      //   for (const word of group.words) {
+      //     word.label = `${String(group.name)}>${String(word.word)}`
+      //   }
+      // }
+      // let wordIdIncr = 0
+      // // this stuff mutates words. TODO: refactore it
+      // eachWords(rule, (word: Word) => {
+      //   word.word_id = wordIdIncr++
+      //   // this stuff mutates words. TODO: refactore it
+      //   if (word.is_regexp) {
+      //     try {
+      //       if (word.is_complete_matching) {
+      //         // Append "^" and "$"
+      //         let expression = (word.text.charAt(0) !== '^') ? '^' : ''
+      //         expression += word.text
+      //         expression += ((word.text.charAt(word.text.length - 1) !== '$') ? '$' : '')
+      //         if (word.is_case_sensitive) {
+      //           word.regExp = new RegExp(expression)
+      //         }
+      //         else {
+      //           word.regExp = new RegExp(expression, 'i')
+      //         }
+      //       }
+      //       else {
+      //         if (word.is_case_sensitive) {
+      //           word.regExp = new RegExp(word.word)
+      //         }
+      //         else {
+      //           word.regExp = new RegExp(word.word, 'i')
+      //         }
+      //       }
+      //     }
+      //     catch (ex) {
+      //       console.log(`Invalid RegExp: "${word.word}"`)
+      //     }
+      //   }
+      // })
     }
     let needBlocking = false
     for (const rule of this.rules) {
@@ -84,37 +108,11 @@ export default class RulesExecutor {
     console.log('checking blocking', needBlocking, this.rules)
     // TODO: consider removing this condition. I see no point in it. Just execute the block itself
     if (needBlocking) {
-      for (let after = 50; after < 250; after += 50) {
-        setTimeout(() => {
-          this.execBlock()
-        }, after)
-      }
       this.blockInterval = setInterval(() => {
-        this.execBlock()
+        this.executeHideRules()
       }, 250)
-      this.execBlock()
     }
-  }
-
-  execBlock(): void {
-    // TODO: fix it. move this somewhere
-    if (!this.needExecBlock) {
-      return
-    }
-    // this.needExecBlock = false
-    if (!this.rules)
-      return
-    for (const rule of this.rules) {
-      if (!rule.is_disabled) {
-        this.applyRule(rule, false, (node: HTMLElement) => {
-          this.hiddenNodesList.add(node)
-          this.blockedCount++
-          if (!getXPathCssSelector(rule)) {
-            this.hiddenNodesList.apply(node)
-          }
-        }, false)
-      }
-    }
+    return this
   }
 
   addBlockCss(xpath: string) {
@@ -124,6 +122,62 @@ export default class RulesExecutor {
       document.getElementsByTagName('HEAD')[0].appendChild(this.styleTag)
     }
     this.styleTag.innerHTML = `${this.styleTag.innerHTML}${xpath}{display:none;}`
+  }
+
+  removeBlockCss() {
+    if (this.styleTag) {
+      this.styleTag.innerHTML = ''
+    }
+    return this
+  }
+
+  getNodesForRule(rule: Rule) {
+    const blockingNodes = ((rule.hide_block_by_css)
+      ? getElementsByCssSelector(rule.hide_block_css)
+      : getElementsByXPath(rule.hide_block_xpath)) as HTMLElement[]
+
+    const containerNodes = blockingNodes.filter((node): boolean => {
+      // filter out hidden nodes
+      return node.style.display !== 'none'
+    })
+
+    const isValidCssSearchBlock = (rule.search_block_by_css && isEmpty(rule.search_block_css))
+    const isValidXPathSearchBlock = (!rule.search_block_by_css && isEmpty(rule.search_block_xpath))
+    const isValidSearchBlock = (isValidCssSearchBlock || isValidXPathSearchBlock)
+
+    let searchNodes: HTMLElement[]
+
+    if (isValidSearchBlock) {
+      searchNodes = [...containerNodes]
+    } else {
+      searchNodes = (rule.block_anyway)
+        ? []
+        : ((rule.search_block_by_css) ? getElementsByCssSelector(rule.search_block_css) : getElementsByXPath(rule.search_block_xpath)) as HTMLElement[]
+    }
+
+    const searchNodesWithKeyword = searchNodes.filter((node): boolean => !!findWord(node, rule))
+
+    return containerNodes.filter((node): boolean => rule.block_anyway || searchNodesWithKeyword.some(searchNode => node.contains(searchNode) || searchNode === node))
+  }
+
+  executeRule(rule: Rule) {
+    if (rule.is_disabled) {
+      return
+    }
+    const nodesToHide = this.getNodesForRule(rule)
+    for (const node of nodesToHide) {
+      if (!getXPathCssSelector(rule)) {
+        this.hiddenNodesList.apply(node)
+      }
+    }
+  }
+  executeHideRules() {
+    this.hiddenNodesList.clearDetachedNodes()
+    for (const rule of this.rules) {
+      if (!rule.is_disabled) {
+        this.executeRule(rule)
+      }
+    }
   }
 
   applyRule(rule: Rule, ignoreHidden: boolean, onHide: (el: HTMLElement) => void, isTesting: boolean) {
@@ -150,12 +204,13 @@ export default class RulesExecutor {
         continue
       }
       const foundWord = findWord(node, rule)
-      if (foundWord != null) {
+      if (foundWord) {
         node.containsNgWord = true
         node.setAttribute('containsNgWord', 'true')
         node.setAttribute('foundWord', `${foundWord.word_id}`)
       }
     }
+    // console.log('hide nodes', hideNodes)
     for (let i = 0, l = hideNodes.length; i < l; i++) {
       const node = hideNodes[i] as HTMLElement
       if (node.style.display === 'none') {
@@ -163,6 +218,7 @@ export default class RulesExecutor {
       }
       let shouldBeHidden = rule.block_anyway
       let foundChild = null
+      console.log('some filtering here')
       if (!shouldBeHidden) {
         foundChild = this.findFlaggedChild(node, searchNodes)
         if (foundChild) {
@@ -232,7 +288,7 @@ export default class RulesExecutor {
     while (node) {
       if (node === rootNode)
         return true
-      node = <HTMLElement>node.parentNode
+      node = node.parentNode
     }
     return false
   }

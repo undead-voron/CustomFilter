@@ -108,6 +108,7 @@ const createRule = async () => {
 const editRule = async (rule: Rule) => {
   // TODO: Implement rule editing logic
   await sendMessageToBackground('updateRule', {id: rule.rule_id})
+  window.close();
 }
 
 const toggleRule = async (rule: Rule) => {
