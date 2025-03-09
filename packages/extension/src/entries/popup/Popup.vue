@@ -117,7 +117,7 @@ const toggleRule = async (rule: Rule) => {
 }
 
 const deleteRule = (rule: Rule) => {
-  // TODO: Implement rule deletion logic
+  sendMessageToBackground('deleteRule', {id: rule.rule_id})
 }
 
 const dismissKeywordGroupNote = () => {

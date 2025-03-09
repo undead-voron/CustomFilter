@@ -10,5 +10,6 @@ declare module 'deco-ext' {
     createRule: void
     updateRule: ProtocolWithReturn<{ id: number }, void>
     toggleRule: ProtocolWithReturn<{ id: number }, void>
+    deleteRule: ProtocolWithReturn<{ id: number }, void>
   }
 }

@@ -62,6 +62,16 @@ export default class RulesService {
       browser.storage.local.set({ [RULES_STORAGE_KEY]: rulesCopy })
     }
   }
+  @onMessage({ name: 'deleteRule' })
+  deleteRule(@messageData('id') id: number): void {
+    const rulesCopy = [...this.appliedRules]
+    const ruleIndex = rulesCopy.findIndex(rule => rule.rule_id === id)
+    if (ruleIndex !== -1) {
+      rulesCopy.splice(ruleIndex, 1)
+    }
+    browser.storage.local.set({ [RULES_STORAGE_KEY]: rulesCopy })
+  }
+  
 
   @onMessage({ name: 'getAppliedRules' })
   async getAppliedRules(): Promise<Rule[]> {
