@@ -57,7 +57,7 @@ export default {
       }
       const label = {
         fontSize: '10px',
-        lineHeight: '12px',
+        lineHeight: '1.2em',
         color: 'black',
         fontWeight: 'normal',
       }

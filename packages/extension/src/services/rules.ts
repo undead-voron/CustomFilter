@@ -53,6 +53,16 @@ export default class RulesService {
     // TODO: add icon change
   }
 
+  @onMessage({ name: 'toggleRule' })
+  toggleRule(@messageData('id')id: number): void {
+    const rule = this.appliedRules.findIndex(rule => rule.rule_id === id)
+    if (rule !== -1) {
+      const rulesCopy = [...this.appliedRules]
+      rulesCopy[rule].is_disabled = !rulesCopy[rule].is_disabled
+      browser.storage.local.set({ [RULES_STORAGE_KEY]: rulesCopy })
+    }
+  }
+
   @onMessage({ name: 'getAppliedRules' })
   async getAppliedRules(): Promise<Rule[]> {
     // TODO: consider changing it

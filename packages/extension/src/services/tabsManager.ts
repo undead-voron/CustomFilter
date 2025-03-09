@@ -8,12 +8,20 @@ export default class TabsManager {
     await browser.tabs.create({ url: browser.runtime.getURL('./src/entries/options/index.html') })
   }
 
-  @onMessage({ name: 'openRuleEditor' })
-  async openRuleEditor(): Promise<void> {
+  @onMessage({ name: 'createRule' })
+  async createRule(): Promise<void> {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true })
     if (tabs.length > 0) {
       // TODO: add handler in content script
-      await sendMessageToContent('openRuleEditor', undefined, { tabId: tabs[0].id || 0 })
+      await sendMessageToContent('createRule', undefined, { tabId: tabs[0].id || 0 })
+    }
+  }
+
+  @onMessage({ name: 'updateRule' })
+  async updateRule(@messageData('id') id: number): Promise<void> {
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    if (tabs.length > 0) {
+      await sendMessageToContent('updateRule', { id }, { tabId: tabs[0].id || 0 })
     }
   }
 

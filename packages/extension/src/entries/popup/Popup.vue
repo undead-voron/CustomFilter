@@ -1,16 +1,21 @@
 <template>
   <div class="popup">
-    <div class="header">
-      <div class="menu">
-        <input type="radio" name="extension_enable" id="buttonOn" v-model="isEnabled" :value="true" @change="setEnabledState($event.target.checked)" />
-        <label for="buttonOn">ON</label>
-        <input type="radio" name="extension_enable" id="buttonOff" v-model="isEnabled" :value="false" @change="setEnabledState(!$event.target.checked)" />
-        <label for="buttonOff">OFF</label>
+    <div class="flex flex-row items-center justify-between">
+      <h1><img src="../img/top_title.png" width="156" alt="CustomBlocker" /></h1>
+      <div class="flex flex-row items-center gap-md">
+        <div class="flex flex-row items-center gap-sm">
+          <input type="radio" name="extension_enable" id="buttonOn" v-model="isEnabled" :value="true" @change="setEnabledState($event.target.checked)" />
+          <label for="buttonOn">ON</label>
+        </div>
+        <div class="flex flex-row items-center gap-sm">
+          <input type="radio" name="extension_enable" id="buttonOff" v-model="isEnabled" :value="false" @change="setEnabledState(!$event.target.checked)" />
+          <label for="buttonOff">OFF</label>
+        </div>
         <a href="#" @click.prevent="openPreferences">
           <span>Preferences</span>
         </a>
       </div>
-      <h1><img src="../img/top_title.png" width="156" alt="CustomBlocker" /></h1>
+      
     </div>
 
     <div class="content">
@@ -26,6 +31,7 @@
               :rule="rule"
               @edit="editRule"
               @delete="deleteRule"
+              @toggle="toggleRule"
             />
           </template>
           <li v-else class="empty">
@@ -52,35 +58,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import RuleListItem from './components/RuleListItem.vue'
 import type { Rule } from '../types'
 import {sendMessageToBackground} from 'deco-ext'
 import browser from 'webextension-polyfill'
-import { isExtensionEnabled, setExtensionEnabledState } from '~/utils'
+import { isExtensionEnabled, RULES_STORAGE_KEY, setExtensionEnabledState, useBrowserStorage, wildcardToRegExp } from '~/utils'
 
 const isEnabled = ref(true)
-const activeRules = ref<Rule[]>([])
 const version = ref(`${browser.runtime.getManifest().version}`)
 const showKeywordGroupNote = ref(true)
 const keywordGroupUrl = 'pref/word_group.html'
 
+const props = defineProps<{activeUrl: string}>()
+
+const {value: rules} = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
+
+const activeRules = computed(() => {
+  return rules.value.filter(rule => {
+    try {
+        let regex
+        if (rule.specify_url_by_regexp) {
+          regex = new RegExp(rule.site_regexp, 'i')
+        }
+        else {
+          regex = new RegExp(wildcardToRegExp(rule.url), 'i')
+        }
+        return regex.test(props.activeUrl)
+      }
+      catch (e) {
+        console.log(e)
+      }
+      return false
+  })
+})
+
 const openPreferences = async () => {
   // TODO: Implement preferences opening logic
   await sendMessageToBackground('openPreferences', undefined)
-
 }
 
 const createRule = async () => {
   // TODO: Implement rule creation logic
-  await sendMessageToBackground('openRuleEditor', undefined)
+  await sendMessageToBackground('createRule', undefined)
   window.close();
   
 }
 
 const editRule = async (rule: Rule) => {
   // TODO: Implement rule editing logic
-  await sendMessageToBackground('editRule', {})
+  await sendMessageToBackground('updateRule', {id: rule.rule_id})
+}
+
+const toggleRule = async (rule: Rule) => {
+  // TODO: Implement rule editing logic
+  await sendMessageToBackground('toggleRule', {id: rule.rule_id})
 }
 
 const deleteRule = (rule: Rule) => {
@@ -106,18 +138,20 @@ onMounted(async () => {
   // - Load version
   // - Load keyword group note dismissal state
   await updateEnabledState()
-  const rules = await sendMessageToBackground('getAppliedRules', {})
-  activeRules.value = rules
   // const dismissed = await sendMessageToBackground('getKeywordGroupNoteDismissalState', {})
   // showKeywordGroupNote.value = dismissed
 })
 </script>
 
-<style scoped>
+<style>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .popup {
   width: 480px;
   margin: 0;
-  padding: 0;
+  padding: 7px;
   font-family: 'Hiragino Kaku Gothic ProN', 'YuGothic', 'Yu Gothic', 'Meiryo', 'MS Gothic', 'Lucida Grande', 'Helvetica', 'Arial', sans-serif;
 }
 
@@ -145,9 +179,6 @@ onMounted(async () => {
   font-weight: normal;
 }
 
-.content {
-  padding: 7px;
-}
 
 .rule-section {
   margin-bottom: 6px;

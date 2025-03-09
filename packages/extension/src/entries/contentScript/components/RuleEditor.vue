@@ -1,7 +1,7 @@
 <template>
   <div class="rule-editor flex flex-col bg-white z-max" ref="container">
     <div class="drag-handle flex flex-row justify-end items-center">
-      <button @click.stop.prevent.capture="closeEditor" class="px-md">×</button>
+      <button @click.stop.prevent.capture="closeEditor" class="px-md text-[16px]">×</button>
     </div>
     <RuleEditorFrame :rule="rule" @save="saveRule" @test="testRule" @close="closeEditor"
       @pick-path="startPathPicking" />

@@ -1,22 +1,35 @@
 <template>
-  <li class="rule-item">
-    <div class="count" :class="{ hit: rule.hitCount > 0, noHit: rule.hitCount === 0 }">
-      {{ rule.hitCount }}
+  <li class="rule-item flex flex-row items-center justify-between">
+    <div class="flex flex-row items-center">
+      <div class="count" :class="{ hit: rule.hitCount > 0, noHit: rule.hitCount === 0 }">
+        {{ rule.hitCount }}
+      </div>
+      <span>{{ rule.title }}</span>
     </div>
-    <div class="title">{{ rule.title }}</div>
-    <div class="button-container">
+      
+    <div class="flex flex-row items-center gap-md">
+      <button @click="$emit('toggle', rule)" title="Toggle">
+        <img :src="rule.is_disabled ? offUrl : onUrl" class="w-[2.5em] h-[1em]" />
+      </button>
       <button class="button-edit" @click="$emit('edit', rule)" title="Edit">
-        Edit
+        <Edit />
       </button>
       <button class="button-delete" @click="$emit('delete', rule)" title="Delete">
-        Delete
+        <Delete />
       </button>
     </div>
   </li>
 </template>
 
 <script setup lang="ts">
-import type { Rule } from '../../types'
+import type { Rule } from '~/services/types';
+import Edit from '~/components/img/Edit.vue';
+import Delete from '~/components/img/Delete.vue';
+import OnIcon from '~/assets/on.png';
+import OffIcon from '~/assets/off.png';
+
+const onUrl = new URL(OnIcon, import.meta.url).href;
+const offUrl = new URL(OffIcon, import.meta.url).href;
 
 defineProps<{
   rule: Rule
@@ -40,14 +53,6 @@ defineEmits<{
   position: relative;
 }
 
-.title {
-  margin-left: 25px;
-  margin-right: 122px;
-  vertical-align: middle;
-  height: inherit;
-  color: #222;
-}
-
 .count {
   height: 14px;
   margin-top: 6px;
@@ -58,7 +63,6 @@ defineEmits<{
   text-align: center;
   color: white;
   font-size: 10px;
-  float: left;
 }
 
 .hit {
@@ -67,17 +71,6 @@ defineEmits<{
 
 .noHit {
   background-color: #959595;
-}
-
-.button-container {
-  float: right;
-  width: 120px;
-  height: inherit;
-  text-align: right;
-  margin: 2px 0 0;
-  padding: 0;
-  width: 175px;
-  line-height: 17px;
 }
 
 .button-container button {
@@ -101,13 +94,5 @@ defineEmits<{
   background-size: 14px 14px;
   width: 14px;
   height: 14px;
-}
-
-.button-container button {
-  visibility: hidden;
-}
-
-.rule-item:hover .button-container button {
-  visibility: visible;
 }
 </style> 

@@ -1,4 +1,4 @@
-import { InjectableService, onMessage } from 'deco-ext'
+import { InjectableService, messageData, onMessage } from 'deco-ext'
 import { type App, createApp } from 'vue'
 import RulesEditor from '~/entries/contentScript/components/RuleEditor.vue'
 import ElementHighlighter from '~/services/elementsHighlighter'
@@ -43,7 +43,49 @@ export default class Main {
     )
   }
 
-  @onMessage({ name: 'openRuleEditor' })
+  @onMessage({ name: 'createRule' })
+  createRule() {
+    const rule = this.cbStorage.createRule()
+    this.mountEditor(rule)
+  }
+
+  @onMessage({ name: 'updateRule' })
+  async updateRule(@messageData('id')id: number) {
+    const rule = await this.cbStorage.getRuleById(id)
+
+    if (!rule)
+      this.createRule()
+    else
+      this.mountEditor(rule)
+  }
+
+  mountEditor(rule: Rule) {
+    if (!this.appRoot)
+      return
+
+    this.ui = createApp(RulesEditor, { initialRule: rule, onCloseEditor: () => this.unmount() })
+      .provide('saveRule', (rule: Rule) => {
+        this.cbStorage.saveRule(rule)
+      })
+      .provide('highlightHideElements', (el?: HTMLElement[]) => {
+        this.elementsHighliter.highlightHideElements(el)
+      })
+      .provide('highlightSearchElements', (el?: HTMLElement[]) => {
+        this.elementsHighliter.highlightSearchElements(el)
+      })
+      .provide('testRule', (rule: Rule) => {
+        this.rulesExecutor.rules.push(rule)
+        this.rulesExecutor.applyRule(rule, true, (node: HTMLElement) => { 
+          this.testNodesList.add(node)
+          this.testNodesList.apply(node)
+        }, true)
+        this.rulesExecutor.execBlock()
+      })
+      .provide('shadowRoot', this.appRoot.parentNode);
+
+    this.ui.mount(this.appRoot)
+  }
+
   mount() {
     if (!this.appRoot)
       return

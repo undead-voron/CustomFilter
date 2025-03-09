@@ -128,29 +128,29 @@
           <div class="flex flex-row flex-wrap gap-sm">
             <div class="flex flex-row gap-sm items-center mr-md">
               <input type="checkbox" id="complete-match" v-model="completeMatch" />
-              <label for="complete-match" class="flex flex-row items-center">
-                <CompleteMatchImg class="h-[1em] w-[1em] mr-sm" />
+              <label for="complete-match" class="flex flex-row items-center text-[12px]">
+                <CompleteMatchImg class="h-[1.25em] w-[1.25em] mr-sm" />
                 Complete Match
               </label>
             </div>
             <div class="flex flex-row gap-sm items-center mr-md">
               <input type="checkbox" id="regex-match" v-model="regexMatch" />
-              <label for="regex-match" class="flex flex-row items-center">
-                <RegexpImg class="h-[1em] w-[1em] mr-sm" />
+              <label for="regex-match" class="flex flex-row items-center text-[12px]">
+                <RegexpImg class="h-[1.25em] w-[1.25em] mr-sm" />
                 RegEx
               </label>
             </div>
             <div class="flex flex-row gap-sm items-center mr-md">
               <input type="checkbox" id="case-sensitive" v-model="caseSensitive" />
-              <label for="case-sensitive" class="flex flex-row items-center">
+              <label for="case-sensitive" class="flex flex-row items-center text-[12px]">
                 <CaseSensitiveImg class="h-[1em] w-[1em] mr-sm" />
                 Case Sensitive
               </label>
             </div>
             <div class="flex flex-row gap-sm items-center">
               <input type="checkbox" id="include-link-url" v-model="includeLinkUrl" />
-              <label for="include-link-url" class="flex flex-row items-center">
-                <IncludeUrlImg class="h-[1em] w-[1em] mr-sm" />
+              <label for="include-link-url" class="flex flex-row items-center text-[12px]">
+                <IncludeUrlImg class="h-[1.25em] w-[1.25em] mr-sm" />
                 Include Link URL
               </label>
             </div>

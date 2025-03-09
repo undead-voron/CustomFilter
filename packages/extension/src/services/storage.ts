@@ -26,7 +26,7 @@ export default class RulesService {
       appliedWordsMap: null,
       is_disabled: false,
 
-      rule_id: 0,
+      rule_id: Date.now(),
       user_identifier: null,
       global_identifier: null,
       title: document?.title ?? '',
@@ -54,15 +54,6 @@ export default class RulesService {
       specify_url_by_regexp: false,
       existing: false,
     }
-    return {
-      block_anyway: false,
-      hide_block_by_css: true,
-      search_block_by_css: true,
-      specify_url_by_regexp: false,
-      keywords: [],
-      is_disabled: false,
-      is_replace_rule: false,
-    }
   }
 
   async saveRule(rule: Rule): Promise<void> {
@@ -86,6 +77,7 @@ export default class RulesService {
         rules.push(rule)
       }
 
+      console.log('saving rules', rules)
       await browser.storage.local.set({ [RULES_STORAGE_KEY]: rules })
     }
     catch (error) {
@@ -178,6 +170,11 @@ export default class RulesService {
       console.error('Error enabling rule:', error)
       throw new Error('Failed to enable rule')
     }
+  }
+
+  async getRuleById(ruleId: number): Promise<Rule | undefined> {
+    const rules = await this.getRules()
+    return rules.find(r => r.rule_id === ruleId)
   }
 
   async disableRule(ruleId: number): Promise<void> {
