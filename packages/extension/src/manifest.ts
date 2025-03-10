@@ -26,7 +26,6 @@ const sharedManifest: Partial<chrome.runtime.ManifestBase> = {
   permissions: [
     'storage',
     'tabs',
-    'notifications',
     'webNavigation',
     'unlimitedStorage',
     'activeTab',
@@ -46,6 +45,7 @@ const browserAction = {
     // 256: 'icons/256.png',
     // 512: 'icons/512.png',
   },
+  default_title: 'CustomBlocker Rules',
   default_popup: 'src/entries/popup/index.html',
 }
 
@@ -65,8 +65,8 @@ const ManifestV2 = {
 
 const resources = [
   'help/*',
-  'post_install.html',
-  'src/entries/post_install/index.html',
+  // 'post_install.html',
+  // 'src/entries/post_install/index.html',
 ]
 const ManifestV3 = {
   ...sharedManifest,

@@ -1,9 +1,9 @@
 {
   "name": "custom-blocker",
-  "version": "1.0.0",
   "displayName": "CustomBlocker",
+  "version": "1.0.0",
+  "description": "Filter any element on any web site with any condition with XPath, CSS Selector & RegExp",
   "author": "Den Inozemtsev",
-  "description": "Rework of CustomBlock browser extension",
   "type": "module",
   "scripts": {
     "build": "vite build",
