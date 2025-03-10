@@ -25,10 +25,7 @@ const sharedManifest: Partial<chrome.runtime.ManifestBase> = {
   },
   permissions: [
     'storage',
-    'tabs',
-    'webNavigation',
     'unlimitedStorage',
-    'activeTab',
   ],
 }
 
