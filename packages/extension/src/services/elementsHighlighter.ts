@@ -1,6 +1,6 @@
 import type { Rule } from './types'
 import { InjectableService } from 'deco-ext'
-import { getElementsByCssSelector, getElementsByXPath, isContained } from '~/utils'
+import { getElementsByCssSelector, getElementsByXPath } from '~/utils'
 
 @InjectableService()
 export default class ElementHighlighter {
@@ -38,14 +38,14 @@ export default class ElementHighlighter {
   highlightHideElements(elements?: HTMLElement[]) {
     if (this.hideElements) {
       for (let i = 0, l = this.hideElements.length; i < l; i++) {
-        if (!isContained(this.hideElements[i], document.getElementById('rule_editor_container')))
+        if (!document.getElementById('rule_editor_container')?.contains(this.hideElements[i]))
           this.unselectForHide(this.hideElements[i])
       }
     }
     // Apply Styles
     if (elements) {
       for (let i = 0; i < elements.length; i++) {
-        if (!isContained(elements[i], document.getElementById('rule_editor_container')))
+        if (!document.getElementById('rule_editor_container')?.contains(elements[i]))
           this.selectForHide(elements[i])
       }
     }
@@ -55,14 +55,14 @@ export default class ElementHighlighter {
   highlightSearchElements(elements?: HTMLElement[]) {
     if (this.searchElements) {
       for (let i = 0, l = this.searchElements.length; i < l; i++) {
-        if (!isContained(this.searchElements[i], document.getElementById('rule_editor_container')))
+        if (document.getElementById('rule_editor_container')?.contains(this.searchElements[i]))
           this.unselectForSearch(this.searchElements[i])
       }
     }
     // Apply Styles
     if (elements) {
       for (let i = 0; i < elements.length; i++) {
-        if (!isContained(elements[i], document.getElementById('rule_editor_container')))
+        if (document.getElementById('rule_editor_container')?.contains(elements[i]))
           this.selectForSearch(elements[i])
       }
     }

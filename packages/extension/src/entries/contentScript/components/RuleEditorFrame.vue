@@ -324,19 +324,19 @@ const openHelp = (url: string) => {
 
 <style scoped>
 .rule-editor-frame {
-  padding: 16px;
+  padding: 8px 16px;
 }
 
 .section {
   margin-bottom: 8px;
   padding-bottom: 8px;
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .section h2 {
   font-size: 16px;
   font-weight: 500;
-  transform: translateY(-10px);
+  transform: translateY(-5px);
   background-color: white;
 }
 
@@ -345,7 +345,7 @@ const openHelp = (url: string) => {
 }
 
 .input-section {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .checkbox-section {
@@ -360,7 +360,7 @@ const openHelp = (url: string) => {
 
 
 .selector-section {
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
 
 .selector-type {
