@@ -81,8 +81,6 @@ const startPathPicking = (target: string) => {
 const stopPathPicking = () => {
   showPathPicker.value = false
   currentPathTarget.value = ''
-  // selectedElement.value = null
-  // removePathPickerHandlers()
 }
 
 const onPathSelected = (data: { target: string, path: string }) => {

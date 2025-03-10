@@ -11,6 +11,5 @@ declare module 'deco-ext' {
     updateRule: ProtocolWithReturn<{ id: number }, void>
     toggleRule: ProtocolWithReturn<{ id: number }, void>
     deleteRule: ProtocolWithReturn<{ id: number }, void>
-    // setExtensionEnabledState: ProtocolWithReturn<{ isDisabled: boolean }, void>
   }
 }

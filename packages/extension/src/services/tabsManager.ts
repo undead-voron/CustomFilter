@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill'
 
 @InjectableService()
 export default class TabsManager {
+  @onInstalled({ reason: 'install' })
   @onMessage({ name: 'openPreferences' })
   async openPreferences(): Promise<void> {
     await browser.tabs.create({ url: browser.runtime.getURL('./src/entries/options/index.html') })
@@ -34,14 +35,8 @@ export default class TabsManager {
   // TODO: fix it. change it on redirect only
   @onTabUpdated()
   async clearBadge(@tabUpdatedTab('id') tabId: number, @tabUpdatedDetails() details: browser.Tabs.OnUpdatedChangeInfoType): Promise<void> {
-    if (details.status === 'complite') {
+    if (details.status !== 'complite') {
       this.setBadge('', tabId)
     }
-  }
-
-  @onInstalled({reason: 'install'})
-  async onInstalled() {
-    // await browser.tabs.create({ url: browser.runtime.getURL('./src/entries/post_install/index.html') })
-    await this.openPreferences()
   }
 }
