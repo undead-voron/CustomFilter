@@ -12,7 +12,7 @@
         <a href="#" avoidStyle @click.prevent="selectPath(path)" @mouseover="previewPath(path)"
           @mouseout="clearPreview">
           <span avoidStyle class="badge bg-brand-blue text-white">{{ path.elements.length }}</span>
-          <span avoidStyle class="xpath">{{ trim(path.path) }}</span>
+          <span avoidStyle class="xpath">{{ path.path.trim() }}</span>
         </a>
       </li>
     </ul>
@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
-import { usePathPickerDialog, trim, useNodeHighlight } from '~/utils';
+import { usePathPickerDialog, useNodeHighlight } from '~/utils';
 
 const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
 

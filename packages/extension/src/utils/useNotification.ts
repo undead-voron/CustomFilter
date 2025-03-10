@@ -1,4 +1,4 @@
-import { readonly, ref } from "vue"
+import { readonly, ref } from 'vue'
 
 export function useNotification(delay: number = 3000) {
   const isVisible = ref(false)

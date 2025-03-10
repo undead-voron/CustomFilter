@@ -1,11 +1,10 @@
 import type { PathBuilder, PathFilter } from '~/services/types'
-import { arrayContains } from '~/utils/array-utils'
+
 import {
   getElementsByCssSelector,
   getElementsByXPath,
   isContained,
 } from '~/utils/dom-utils'
-import { trim } from '~/utils/string-utils'
 
 // Composable for XPathBuilder
 export function useXPathBuilder(): PathBuilder {
@@ -30,7 +29,7 @@ export function useXPathBuilder(): PathBuilder {
   }
 
   const createPathFilter = (_path: string): PathFilter => {
-    const path = trim(_path)
+    const path = _path.trim()
     return {
       path,
       elements: getElementsByXPath(path) as HTMLElement[],
@@ -70,7 +69,7 @@ export function useCssBuilder(): PathBuilder {
   }
 
   const createPathFilter = (_path: string): PathFilter => {
-    const path = trim(_path)
+    const path = _path.trim()
     return {
       path,
       elements: getElementsByCssSelector(path) as HTMLElement[],
@@ -179,7 +178,7 @@ export function usePathAnalyzer() {
           }
         }
 
-        if (!arrayContains(uniqPathList, str))
+        if (!uniqPathList.includes(str))
           uniqPathList.push(str)
       }
 

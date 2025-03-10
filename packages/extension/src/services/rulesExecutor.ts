@@ -1,6 +1,6 @@
 import type { Rule, Word } from './types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
-import { findWord, getElementsByCssSelector, getElementsByXPath, isEmpty, getXPathCssSelector } from '~/utils'
+import { findWord, getElementsByCssSelector, getElementsByXPath, getXPathCssSelector } from '~/utils'
 import RulesService from './storage'
 import { HiddenNodes } from './stylesController'
 import ExtensionStateService from './extensionState'
@@ -193,8 +193,8 @@ export default class RulesExecutor {
       ? getElementsByCssSelector(rule.hide_block_css)
       : getElementsByXPath(rule.hide_block_xpath)) as HTMLElement[]
 
-    const isValidCssSearchBlock = (rule.search_block_by_css && isEmpty(rule.search_block_css))
-    const isValidXPathSearchBlock = (!rule.search_block_by_css && isEmpty(rule.search_block_xpath))
+    const isValidCssSearchBlock = (rule.search_block_by_css && !rule.search_block_css)
+    const isValidXPathSearchBlock = (!rule.search_block_by_css && !rule.search_block_xpath)
     const isValidSearchBlock = (isValidCssSearchBlock || isValidXPathSearchBlock)
 
     let searchNodes: HTMLElement[]
@@ -245,8 +245,8 @@ export default class RulesExecutor {
       ? getElementsByCssSelector(rule.hide_block_css)
       : getElementsByXPath(rule.hide_block_xpath)
     let searchNodes: HTMLElement[]
-    if ((rule.search_block_by_css && isEmpty(rule.search_block_css))
-      || (!rule.search_block_by_css && isEmpty(rule.search_block_xpath))) {
+    if ((rule.search_block_by_css && !rule.search_block_css)
+      || (!rule.search_block_by_css && !rule.search_block_xpath)) {
       searchNodes = []
       for (let i = 0; i < hideNodes.length; i++) {
         searchNodes.push(hideNodes[i] as HTMLElement)

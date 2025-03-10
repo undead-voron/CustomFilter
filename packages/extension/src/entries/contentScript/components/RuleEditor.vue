@@ -18,7 +18,7 @@ import { ref,  unref, inject } from 'vue'
 import type { Rule } from '~/services/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
-import useDraggable from '~/utils/useDraggable';
+import useDraggable from '~/composables/useDraggable';
 import { isRuleValid, useNotification } from '~/utils';
 
 const props = defineProps<{
