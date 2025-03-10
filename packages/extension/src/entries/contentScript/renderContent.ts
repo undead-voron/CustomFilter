@@ -10,6 +10,24 @@ export default async function renderContent(
   })
   const appRoot = document.createElement('div')
 
+  // Create a mutation observer to track changes in appRoot
+  const observer = new MutationObserver(() => {
+    if (appRoot.childNodes.length === 0) {
+      // If appRoot is empty, detach appContainer from document.body
+      if (document.body.contains(appContainer)) {
+        document.body.removeChild(appContainer)
+      }
+    } else {
+      // If appRoot has content and appContainer is not in the DOM, reattach it
+      if (!document.body.contains(appContainer)) {
+        document.body.appendChild(appContainer)
+      }
+    }
+  })
+
+  // Start observing appRoot for changes to its child nodes
+  observer.observe(appRoot, { childList: true, subtree: true })
+
   if (import.meta.hot) {
     const { addViteStyleTarget } = await import(
       '@samrum/vite-plugin-web-extension/client'
