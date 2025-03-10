@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
-import { usePathAnalyzer } from '~/composables/usePath'
 import { usePathPickerDialog, trim, useNodeHighlight } from '~/utils';
 
 const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
@@ -58,13 +57,6 @@ const parentNodeEventHandlers = ref<{
   clickHandler: (event: MouseEvent) => void,
 } | null>(null)
 
-const title = computed(() => {
-  const isHide = props.targetType.startsWith('hide')
-  const isXPath = props.targetType.endsWith('xpath')
-  return `Select ${isHide ? 'Hide' : 'Search'} ${isXPath ? 'XPath' : 'CSS'} Path`
-})
-
-const { createPathAnalyzer } = usePathAnalyzer()
 
 const selectPath = (path: any) => {
   emit('path-selected', {
@@ -74,12 +66,6 @@ const selectPath = (path: any) => {
   close()
 }
 
-const selectParent = () => {
-  if (selectedElement.value?.parentNode) {
-    selectedElement.value = selectedElement.value?.parentNode as HTMLElement
-    // emit('element-selected', props.selectedElement.parentNode as HTMLElement)
-  }
-}
 const highlightHideElements = inject('highlightHideElements') as (el?: HTMLElement[]) => void
 const highlightSearchElements = inject('highlightSearchElements') as (el?: HTMLElement[]) => void
 
@@ -122,9 +108,7 @@ const buildMouseEventsHandlers = (node: HTMLElement, originalClickEvent?: MouseE
       event.preventDefault()
       if (selectedElement.value === node) {
         isVisible.value = true
-        show(originalClickEvent || event, node, paths.value, 'none', pathPickerHandlers.value, (...args) => {
-          console.log('onSelect', args)
-        })
+        show(originalClickEvent || event, node, paths.value)
         if (hasParentNode.value) {
           const { mouseoverHandler, mouseoutHandler: parentMouseoutHandler, clickHandler } = buildMouseEventsHandlers(node.parentNode as HTMLElement, originalClickEvent || event)
           parentNodeEventHandlers.value = {

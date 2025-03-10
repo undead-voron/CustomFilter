@@ -83,9 +83,9 @@ export default class ElementHighlighter {
     }
     // Add transparent cover
     else {
-      let elementsToCover = []
-      if (element.tagName == 'TR') {
-        let children = element.childNodes
+      const elementsToCover = []
+      if (element.tagName === 'TR') {
+        const children = element.childNodes
         for (let i = 0; i < children.length; i++) {
           if (children[i].tagName) {
             elementsToCover.push(children[i])
