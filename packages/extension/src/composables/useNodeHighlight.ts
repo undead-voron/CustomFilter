@@ -21,7 +21,7 @@ export function useNodeHighlight(isXPath: boolean) {
     originalOutlineStyle.value = node.style.outline
     originalHref.value = node.getAttribute('href')
     selectedElement.value.href = 'javascript:void(0)'
-    node.style.outline = '2px solid #2fb947'
+    node.style.outline = '2px dashed #2fb947'
   }
 
   onBeforeUnmount(() => {

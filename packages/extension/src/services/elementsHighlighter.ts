@@ -101,11 +101,11 @@ export default class ElementHighlighter {
           const elementToCover = elementsToCover[i]
           elementToCover.style.position = 'relative'
           const div = document.createElement('DIV')
-          div.style.backgroundColor = 'black'
+          div.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
           div.style.position = 'absolute'
           div.style.left = '0px'
           div.style.top = '0px'
-          div.style.opacity = '0.3'
+          div.style.border = '2px inset #2fb947'
           div.style.width = `${elementToCover.clientWidth}px`
           div.style.height = `${elementToCover.clientHeight}px`
           elementToCover.appendChild(div)
