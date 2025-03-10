@@ -17,8 +17,8 @@ export default class RulesService {
       updaterId: null,
       words: [] as Word[],
       wordGroups: [] as WordGroup[],
-      hideNodes: [] as [HTMLElement],
-      searchNodes: [] as [HTMLElement],
+      hideNodes: [] as HTMLElement[],
+      searchNodes: [] as HTMLElement[],
       hiddenCount: 0,
       staticXpath: null,
 
@@ -33,25 +33,19 @@ export default class RulesService {
 
       url: location?.href ?? '',
       site_regexp: escapeStringForRegExp(location?.href ?? ''),
-      example_url: null,
       example_url: location?.href ?? '',
       block_anyway: false,
       hide_block_by_css: true,
       search_block_by_css: true,
       specify_url_by_regexp: false,
       keywords: [],
-      is_disabled: false,
       is_replace_rule: false,
       search_block_css: null,
       search_block_xpath: null,
-      search_block_by_css: true,
 
       hide_block_css: null,
       hide_block_xpath: null,
-      hide_block_by_css: true,
 
-      block_anyway: false,
-      specify_url_by_regexp: false,
       existing: false,
     }
   }

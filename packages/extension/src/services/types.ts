@@ -14,26 +14,15 @@ export interface WordGroup {
   global_identifier: string
 }
 export interface Rule {
-  // Copied from legacy DbObj
-  dirty: boolean
-  isNew: boolean
-  deleted: boolean
-  insert_date: number
-  update_date: number
-  delete_date: number
-  updaterId: string
-
   // Copied from legacy Rule
   words: Word[]
   wordGroups: WordGroup[]
 
-  appliedWords: any[]
-  appliedWordsMap: object
   is_disabled: boolean
 
   rule_id: number // Primary key
-  user_identifier: string
-  global_identifier: string
+  // user_identifier: string
+  // global_identifier: string
   title: string
   url: string
   site_regexp: string
