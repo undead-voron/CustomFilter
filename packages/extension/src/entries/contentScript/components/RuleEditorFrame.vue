@@ -271,10 +271,15 @@ const searchElementsCount = computed(() => {
 })
 
 const isUrlValid = computed(() => {
-  const regexp = props.rule.specify_url_by_regexp
+  try {
+    const regexp = props.rule.specify_url_by_regexp
     ? new RegExp(props.rule.site_regexp, 'i')
     : new RegExp(props.rule.site_regexp.replace(/\*/g, '.*'), 'i')
   return regexp.test(window.location.href)
+  } catch(e) {
+    return false
+  }
+  
 })
 
 const addKeyword = () => {

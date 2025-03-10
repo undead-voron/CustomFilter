@@ -13,7 +13,6 @@ export default class TabsManager {
   async createRule(): Promise<void> {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true })
     if (tabs.length > 0) {
-      // TODO: add handler in content script
       await sendMessageToContent('createRule', undefined, { tabId: tabs[0].id || 0 })
     }
   }
@@ -27,16 +26,15 @@ export default class TabsManager {
   }
 
   @onMessage({ name: 'badge' })
-  async setBadge(@messageData('count') text: number | string, @messageSender('id') tabId: number) {
+  async setBadge(@messageData('count') text: number | string, @messageSender('tab') tab: browser.Tabs.Tab) {
     const action = browser.action || browser.browserAction
-    action.setBadgeText({ tabId, text: `${text}` })
+    action.setBadgeText({ tabId: tab.id || 0, text: text ? `${text}` : '' })
   }
 
-  // TODO: fix it. change it on redirect only
   @onTabUpdated()
-  async clearBadge(@tabUpdatedTab('id') tabId: number, @tabUpdatedDetails() details: browser.Tabs.OnUpdatedChangeInfoType): Promise<void> {
-    if (details.status !== 'complite') {
-      this.setBadge('', tabId)
+  async clearBadge(@tabUpdatedTab() tab: browser.Tabs.Tab, @tabUpdatedDetails() details: browser.Tabs.OnUpdatedChangeInfoType): Promise<void> {
+    if (details.status) {
+      this.setBadge('', tab)
     }
   }
 }

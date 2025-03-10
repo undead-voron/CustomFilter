@@ -4,6 +4,7 @@ import { findWord, getElementsByCssSelector, getElementsByXPath, getXPathCssSele
 import RulesService from './storage'
 import { HiddenNodes } from './stylesController'
 import ExtensionStateService from './extensionState'
+import { send } from 'vite'
 
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
   let inThrottle = false;
@@ -34,9 +35,11 @@ export default class RulesExecutor {
   styleTag?: HTMLStyleElement
   needExecBlock: boolean = true
   mutationObserver?: MutationObserver
+  rulesUrl?: string
   throttledExecuteHideRules: () => void = throttle(() => {
-    this.executeHideRules();
-  }, 250);
+    this.executeHideRules()
+  }, 250)
+
   blockedNodesByRuleCount = new Map<Rule, number>()
 
   constructor(
@@ -50,9 +53,7 @@ export default class RulesExecutor {
     this.startBlocking()
     this.rulesService.addRulesUpdateListener(async () => {
       // react to rules change (independent from source of change) and re-start blocking
-      this.revert()
-      this.rules = await this.rulesService.getRulesByUrl(location.href)
-      this.startBlocking()
+      await this.updateRules()
     })
     this.extensionState.addStateUpdateListener(async () => {
       this.revert()
@@ -61,6 +62,16 @@ export default class RulesExecutor {
         this.startBlocking()
       }
     })
+  }
+
+  async updateRules() {
+    const url = location.href
+    const rules = await this.rulesService.getRulesByUrl(url)
+    this.revert()
+    this.rules = rules
+    this.rulesUrl = url
+    console.log('update rules', this.rules)
+    this.startBlocking()
   }
 
   stopBlocking() {
@@ -82,6 +93,8 @@ export default class RulesExecutor {
       .removeBlockCss()
       .hiddenNodesList
         .revertAll()
+
+    sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
 
     return this
   }
@@ -149,26 +162,24 @@ export default class RulesExecutor {
     // TODO: consider removing this condition. I see no point in it. Just execute the block itself
     if (needBlocking) {
       // Execute hide rules immediately once
-      this.executeHideRules();
-      
-      // Set up MutationObserver to watch for DOM changes
-      this.mutationObserver = this.mutationObserver || new MutationObserver(this.throttledExecuteHideRules);
-      
-      try {
-        // disconnect existing observer just in case
-        this.mutationObserver.disconnect();
-      } catch (e) {
-        // ignore
-      }
-      
-      // Start observing the document with configured parameters
-      this.mutationObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class']
-      });
+      this.executeHideRules()
     }
+    // Set up MutationObserver to watch for DOM changes
+    this.mutationObserver = this.mutationObserver || new MutationObserver(this.throttledExecuteHideRules);
+    try {
+      // disconnect existing observer just in case
+      this.mutationObserver.disconnect()
+    } catch (e) {
+      // ignore
+    }
+    
+    // Start observing the document with configured parameters
+    this.mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    })
     return this
   }
 
@@ -227,15 +238,22 @@ export default class RulesExecutor {
       }
     }
   }
+
   executeHideRules() {
     if (this.extensionState.isDisabled) {
       return
+    }
+    if (this.rulesUrl !== location.href) {
+      this.updateRules()
     }
     this.hiddenNodesList.clearDetachedNodes()
     for (const rule of this.rules) {
       if (!rule.is_disabled) {
         this.executeRule(rule)
       }
+    }
+    if (this.hiddenNodesList.getNodeCount() > 0) {
+      sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
     }
   }
 

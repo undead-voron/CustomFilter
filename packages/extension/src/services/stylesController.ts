@@ -40,6 +40,10 @@ abstract class StyleProcessor {
     return this.originalNodeStylesContainer.has(node)
   }
 
+  getNodeCount() {
+    return this.originalNodeStylesContainer.size
+  }
+
 }
 
 @InjectableService()

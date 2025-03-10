@@ -45,10 +45,16 @@ const {isVisible: isSuccessNotificationVisible, show: showSuccessNotification, h
 
 const testRuleFunction = inject('testRule') as (rule: Rule) => void
 const testRule = () => {
-  testRuleFunction(rule.value)
-  //RuleExecutor.applyRule(rule.value, true, (node) => {
-  //  ElementHighlighter.highlightHideElements([node])
-  //}, false)
+  const cleanedRule = JSON.parse(JSON.stringify(unref(rule)))
+  const validationErrors = isRuleValid(cleanedRule)
+  if (!validationErrors.length) {
+    testRuleFunction(rule.value)
+    successMessage.value = 'Start testing rule...'
+    showSuccessNotification()
+  } else {
+    showErrorNotification()
+    errorMessage.value = validationErrors.join('\n')
+  }
 }
 const saveRuleFn = inject('saveRule') as (rule: Rule) => void
 
@@ -56,9 +62,10 @@ const errorMessage = ref('')
 const successMessage = ref('')
 
 const saveRule = async () => {
-  const validationErrors = isRuleValid(rule.value)
+  const cleanedRule = JSON.parse(JSON.stringify(unref(rule)))
+  const validationErrors = isRuleValid(cleanedRule)
   if (!validationErrors.length) {
-    saveRuleFn(JSON.parse(JSON.stringify(unref(rule))))
+    saveRuleFn(cleanedRule)
     successMessage.value = 'Rule saved successfully'
     showSuccessNotification()
   } else {
