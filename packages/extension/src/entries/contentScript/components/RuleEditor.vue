@@ -105,6 +105,27 @@ const onPathSelected = (data: { target: string, path: string }) => {
 
 <style>
 @tailwind base;
+
+@layer base {
+  * {
+    color-scheme: none;
+  }
+  h1 {
+    @apply text-black;
+  }
+  h2 {
+    @apply text-black;
+  }
+  h3 {
+    @apply text-black;
+  }
+  h4 {
+    @apply text-black;
+  }
+  a {
+    @apply text-black;
+  }
+}
 @tailwind components;
 @tailwind utilities;
 

@@ -20,10 +20,10 @@
           <input v-if="rule.specify_url_by_regexp" type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
           <input v-else type="text" class="flex-1 shrink grow" v-model="rule.url" />
 
-          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')"><QuestionMarkImg class="h-[1.75em] w-[1.75em] text-black" /></a>
+          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')"><QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" /></a>
         </div>
         <div class="flex flex-row gap-sm items-center">
-          <input type="checkbox" id="specify-url-regexp" v-model="rule.specify_url_by_regexp" />
+          <input type="checkbox" id="specify-url-regexp" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" v-model="rule.specify_url_by_regexp" />
           <label for="specify-url-regexp">Use RegExp</label>
         </div>
         <div v-if="!isUrlValid" class="section-alert">
@@ -92,7 +92,7 @@
         <h2 class="px-sm">Condition</h2>
       </div>
       <div class="section-body">
-        <div class="flex flex-col gap-sm">
+        <div class="flex flex-col gap-sm font-[12px]">
           <div class="flex flex-row gap-sm items-center">
             <input type="radio" id="block-anyway" :value="true" v-model="rule.block_anyway" />
             <label for="block-anyway">Block Anyway</label>
@@ -120,7 +120,7 @@
           <div class="flex flex-row gap-md my-md">
             <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" class="shrink grow" />
             <button @click="addKeyword" class="bg-brand-blue grow-0 shrink-0 text-white px-md py-sm">Add</button>
-            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')"><QuestionMarkImg class="h-[1.75em] w-[1.75em] text-black" /></a>
+            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')"><QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" /></a>
           </div>
           <div class="flex flex-row flex-wrap gap-sm">
             <div class="flex flex-row gap-sm items-center mr-md">

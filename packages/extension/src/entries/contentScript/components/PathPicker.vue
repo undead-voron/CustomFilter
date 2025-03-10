@@ -3,7 +3,7 @@
     :style="{ top: `${listPosition.top}px`, left: `${listPosition.left}px` }">
     <ul class="path-list" avoidStyle>
       <li v-if="hasParentNode" class="upper" avoidStyle>
-        <a avoidStyle @click.prevent="parentNodeEventHandlers?.clickHandler"
+        <a avoidStyle class="text-[10px]" @click.prevent="parentNodeEventHandlers?.clickHandler"
           @mouseover="parentNodeEventHandlers?.mouseoverHandler" @mouseout="parentNodeEventHandlers?.mouseoutHandler">
           Select parent element
         </a>
@@ -206,18 +206,13 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 
-.path-list li {
-  padding: 2px 0;
-}
-
 .path-list a {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
+  padding: 4px;
   text-decoration: none;
   color: #333;
-  border-radius: 4px;
 }
 
 .path-list a:hover {
@@ -237,8 +232,8 @@ onBeforeUnmount(() => {
 }
 
 .upper {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
 }
 </style>
