@@ -75,21 +75,6 @@ export function getRelativeElementsByXPath(targetNode: HTMLElement, xpath: strin
 }
 
 /**
- * Checks if a target node is contained in an ancestor node
- */
-export function isContained(targetNode: HTMLElement, ancestorNode: HTMLElement): boolean {
-  if (!ancestorNode || !targetNode)
-    return false
-  let node: HTMLElement | null = targetNode
-  while (node && document.body !== node) {
-    if (node === ancestorNode)
-      return true
-    node = node.parentNode as HTMLElement
-  }
-  return false
-}
-
-/**
  * Gets the common ancestor of multiple elements
  */
 export function getCommonAncestor(elements: HTMLElement[]): HTMLElement {
@@ -155,7 +140,7 @@ export function getContainedElements(ancestorElements: HTMLElement[], elements: 
   const containedElements: HTMLElement[] = []
   for (const element of elements) {
     for (const ancestor of ancestorElements) {
-      if (isContained(element, ancestor)) {
+      if (ancestor.contains(element)) {
         containedElements.push(element)
         break
       }

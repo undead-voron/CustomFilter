@@ -3,7 +3,6 @@ import type { PathBuilder, PathFilter } from '~/services/types'
 import {
   getElementsByCssSelector,
   getElementsByXPath,
-  isContained,
 } from '~/utils/dom-utils'
 
 // Composable for XPathBuilder
@@ -226,7 +225,7 @@ export function usePathAnalyzer() {
           for (let elementIndex = 0; elementIndex < path.elements.length; elementIndex++) {
             const element = path.elements[elementIndex]
             if (element !== targetNode
-              && (isContained(targetNode, element as HTMLElement) || isContained(element as HTMLElement, targetNode))) {
+              && (element.contains(targetNode) || targetNode.contains(element))) {
               nested = true
             }
           }
