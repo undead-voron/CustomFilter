@@ -93,7 +93,13 @@
           class="text-blue-500 no-underline">Amazon.co.jp eGift card</a> to goda.mariko@gmail.com</li>
     </ul> -->
     <h2 class="text-xl font-normal">Credits/Contact</h2>
-    <span>This extension is rework of <a href="https://github.com/maripo/CustomFilter" target="_blank" class="text-blue-500 no-underline">CustomFilter</a> project by <a href="http://blog.maripo.org" target="_blank" class="text-blue-500 no-underline">maripo</a>. The original project's development was suspended by the author.</span>
+    <span>
+      This extension is rework of <a href="https://github.com/maripo/CustomFilter" target="_blank" class="text-blue-500 no-underline">CustomFilter</a> 
+      project by <a href="http://blog.maripo.org" target="_blank" class="text-blue-500 no-underline">maripo</a>. 
+      The original project's development was suspended by the author. 
+      The original project is licensed under the MIT License. 
+      <button @click="showLicense" class="text-blue-500 hover:underline">View License</button>
+    </span>
     <dl class="my-2.5">
       <dt class="font-bold ">Author</dt>
       <dd>Den Inozemtsev</dd>
@@ -113,4 +119,17 @@
       </dd>
     </dl>
   </div>
+  
+  <LicensePopup ref="licensePopup" />
 </template>
+
+<script setup>
+import { ref } from 'vue'
+import LicensePopup from './LicensePopup.vue'
+
+const licensePopup = ref(null)
+
+const showLicense = () => {
+  licensePopup.value.open()
+}
+</script>
