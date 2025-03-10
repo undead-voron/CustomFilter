@@ -65,7 +65,8 @@ import type { Rule } from '../types'
 import {sendMessageToBackground} from 'deco-ext'
 import browser from 'webextension-polyfill'
 import Plus from '~/components/img/Plus.vue'
-import { RULES_STORAGE_KEY, EXTENSION_DISABLED_STORAGE_KEY, useBrowserStorage, wildcardToRegExp } from '~/utils'
+import { useBrowserStorage } from '~/composables/useBrowserStorage'
+import { RULES_STORAGE_KEY, EXTENSION_DISABLED_STORAGE_KEY,  wildcardToRegExp } from '~/utils'
 
 // const isEnabled = ref(true)
 const version = ref(`${browser.runtime.getManifest().version}`)

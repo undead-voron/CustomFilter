@@ -21,7 +21,8 @@
 
 <script setup lang="ts">
 import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
-import { usePathPickerDialog, useNodeHighlight } from '~/utils';
+import { useNodeHighlight } from '~/composables/useNodeHighlight'
+import { usePathPickerDialog } from '~/composables/usePathPickerDialog'
 
 const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
 

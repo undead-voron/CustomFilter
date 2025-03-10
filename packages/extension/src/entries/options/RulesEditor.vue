@@ -27,7 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import { RULES_STORAGE_KEY, useBrowserStorage } from "~/utils";
+import { RULES_STORAGE_KEY } from "~/utils";
+import { useBrowserStorage } from "~/composables/useBrowserStorage";
 import type { Rule } from "~/services/types";
 import Edit from '~/components/img/Edit.vue';
 import Delete from '~/components/img/Delete.vue';
