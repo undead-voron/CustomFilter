@@ -3,9 +3,18 @@
     <div class="drag-handle flex flex-row justify-end items-center">
       <button @click.stop.prevent.capture="closeEditor" class="px-md text-[16px]">×</button>
     </div>
-    <RuleEditorFrame :rule="rule" @save="saveRule" @test="testRule" @close="closeEditor"
+    <RuleEditorFrame 
+      :rule="rule" 
+      @update:rule="updateRule"
+      @save="saveRule" 
+      @test="testRule" 
+      @close="closeEditor"
       @pick-path="startPathPicking" />
-    <PathPicker v-if="showPathPicker" :target-type="currentPathTarget" @path-selected="onPathSelected" @close="stopPathPicking" />
+    <PathPicker 
+      v-if="showPathPicker" 
+      :target-type="currentPathTarget" 
+      @path-selected="onPathSelected" 
+      @close="stopPathPicking" />
     <div class="flex flex-row justify-center items-center absolute top-3 left-0 right-0">
       <span v-if="isErrorNotificationVisible" class="text-center bg-red-500 text-white p-2 rounded-md">{{ errorMessage }}</span>
       <span v-if="isSuccessNotificationVisible" class="text-center bg-green-500 text-white p-2 rounded-md">{{ successMessage }}</span>
@@ -14,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,  unref, inject } from 'vue'
+import { ref, unref, inject, onMounted } from 'vue'
 import type { Rule } from '~/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
@@ -32,7 +41,8 @@ const emit = defineEmits<{
 }>()
 
 const container = ref<HTMLElement | null>(null)
-const rule = ref<Rule>(props.initialRule)
+// Create a local copy of the rule to avoid mutating props
+const rule = ref<Rule>(JSON.parse(JSON.stringify(props.initialRule)))
 
 // Path picker state
 const showPathPicker = ref(false)
@@ -44,11 +54,24 @@ const {isVisible: isErrorNotificationVisible, show: showErrorNotification, hide:
 const {isVisible: isSuccessNotificationVisible, show: showSuccessNotification, hide: hideSuccessNotification} = useNotification()
 
 const testRuleFunction = inject('testRule') as (rule: Rule) => void
+const saveRuleFn = inject('saveRule') as (rule: Rule) => void
+
+const errorMessage = ref('')
+const successMessage = ref('')
+
+const updateRule = (updatedRule: Rule) => {
+  rule.value = updatedRule
+}
+
+const validateRule = (ruleToValidate: Rule): string[] => {
+  return isRuleValid(ruleToValidate)
+}
+
 const testRule = () => {
   const cleanedRule = JSON.parse(JSON.stringify(unref(rule)))
   const validationErrors = isRuleValid(cleanedRule)
   if (!validationErrors.length) {
-    testRuleFunction(rule.value)
+    testRuleFunction(cleanedRule)
     successMessage.value = 'Start testing rule...'
     showSuccessNotification()
   } else {
@@ -56,10 +79,6 @@ const testRule = () => {
     errorMessage.value = validationErrors.join('\n')
   }
 }
-const saveRuleFn = inject('saveRule') as (rule: Rule) => void
-
-const errorMessage = ref('')
-const successMessage = ref('')
 
 const saveRule = async () => {
   const cleanedRule = JSON.parse(JSON.stringify(unref(rule)))
@@ -91,23 +110,26 @@ const stopPathPicking = () => {
 }
 
 const onPathSelected = (data: { target: string, path: string }) => {
+  const updatedRule = { ...rule.value }
+  
   switch (data.target) {
     case 'search_xpath':
-      rule.value.search_block_xpath = data.path
+      updatedRule.search_block_xpath = data.path
       break
     case 'search_css':
-      rule.value.search_block_css = data.path
+      updatedRule.search_block_css = data.path
       break
     case 'hide_xpath':
-      rule.value.hide_block_xpath = data.path
+      updatedRule.hide_block_xpath = data.path
       break
     case 'hide_css':
-      rule.value.hide_block_css = data.path
+      updatedRule.hide_block_css = data.path
       break
   }
+  
+  rule.value = updatedRule
   stopPathPicking()
 }
-
 </script>
 
 <style>

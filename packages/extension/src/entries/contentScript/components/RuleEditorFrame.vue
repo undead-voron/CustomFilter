@@ -4,7 +4,7 @@
       <div class="section-body">
         <div class="input-section flex flex-row justify-center gap-2">
           <label class="shrink-0 grow-0 flex items-center justify-center">Name</label>
-          <input type="text" class="flex-1 shrink grow" v-model="rule.title" />
+          <input type="text" class="flex-1 shrink grow" :value="rule.title" @input="updateTitle($event)" />
         </div>
       </div>
     </section>
@@ -17,13 +17,19 @@
         <div class="flex flex-row justify-center items-center gap-sm">
           <label class="shrink-0 grow-0">URL</label>
 
-          <input v-if="rule.specify_url_by_regexp" type="text" class="flex-1 shrink grow" v-model="rule.site_regexp" />
-          <input v-else type="text" class="flex-1 shrink grow" v-model="rule.url" />
+          <input type="text" class="flex-1 shrink grow" 
+            :value="rule.specify_url_by_regexp ? rule.site_regexp : rule.url" 
+            @input="updateSiteUrl($event)" />
 
-          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')"><QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" /></a>
+          <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')">
+            <QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" />
+          </a>
         </div>
         <div class="flex flex-row gap-sm items-center">
-          <input type="checkbox" id="specify-url-regexp" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" v-model="rule.specify_url_by_regexp" />
+          <input type="checkbox" id="specify-url-regexp" 
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+            :checked="rule.specify_url_by_regexp" 
+            @change="updateSpecifyUrlByRegexp($event)" />
           <label for="specify-url-regexp">Use RegExp</label>
         </div>
         <div v-if="!isUrlValid" class="section-alert">
@@ -42,38 +48,29 @@
       </div>
       <div class="section-body">
         <div class="selector-section">
-          <!--TODO: fix it. no need to rerender all block. just rerender count and name-->
-          <div v-if="!rule.hide_block_by_css" class="input-section flex flex-row justify-center gap-sm">
+          <div class="input-section flex flex-row justify-center gap-sm">
             <label class="shrink-0 grow-0 flex items-center justify-center">
-              <span class="count">{{ hideElementsCount }}</span> XPath
+              <span class="count">{{ hideElementsCount }}</span> {{ rule.hide_block_by_css ? 'CSS' : 'XPath' }}
             </label>
             <div class="input-group flex flex-row justify-center shrink grow">
-              <input type="text" class="shrink grow" v-model="rule.hide_block_xpath" />
+              <input type="text" class="shrink grow" 
+                :value="rule.hide_block_by_css ? rule.hide_block_css : rule.hide_block_xpath" 
+                @input="updateHideSelector($event)" />
               <button class="bg-brand-green text-white px-md py-sm shrink-0 grow-0 flex flex-row"
-                @click="pickPath('hide_xpath')">
-                <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
-              </button>
-            </div>
-          </div>
-          <div v-else class="input-section flex flex-row justify-center gap-sm">
-            <label class="flex items-center justify-center">
-              <span class="count">{{ hideElementsCount }}</span> CSS
-            </label>
-            <div class="input-group flex flex-row justify-center shrink grow">
-              <input type="text" class="shrink grow" v-model="rule.hide_block_css" />
-              <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
-                @click="pickPath('hide_css')">
+                @click="pickPath(rule.hide_block_by_css ? 'hide_css' : 'hide_xpath')">
                 <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
               </button>
             </div>
           </div>
           <div class="flex flex-row gap-sm">
             <div class="flex flex-row gap-md">
-              <input type="radio" id="hide-xpath" :value="false" v-model="rule.hide_block_by_css" />
+              <input type="radio" id="hide-xpath" :checked="!rule.hide_block_by_css" 
+                @change="updateHideBlockByCss(false)" />
               <label for="hide-xpath">XPath</label>
             </div>
             <div class="flex flex-row gap-sm">
-              <input type="radio" id="hide-css" :value="true" v-model="rule.hide_block_by_css" />
+              <input type="radio" id="hide-css" :checked="rule.hide_block_by_css" 
+                @change="updateHideBlockByCss(true)" />
               <label for="hide-css">CSS</label>
             </div>
           </div>
@@ -94,12 +91,16 @@
       <div class="section-body">
         <div class="flex flex-col gap-sm font-[12px]">
           <div class="flex flex-row gap-sm items-center">
-            <input type="radio" id="block-anyway" :value="true" v-model="rule.block_anyway" />
+            <input type="radio" id="block-anyway" :checked="rule.block_anyway" 
+              @change="updateBlockAnyway(true)" />
             <label for="block-anyway">Block Anyway</label>
-            <a class="flex items-center justify-center" @click="openHelp('/help/block_anyway.html')"><QuestionMarkImg class="h-[1.5em] w-[1.5em]" /></a>
+            <a class="flex items-center justify-center" @click="openHelp('/help/block_anyway.html')">
+              <QuestionMarkImg class="h-[1.5em] w-[1.5em]" />
+            </a>
           </div>
           <div class="flex flex-row gap-sm">
-            <input type="radio" id="block-with-keywords" :value="false" v-model="rule.block_anyway" />
+            <input type="radio" id="block-with-keywords" :checked="!rule.block_anyway" 
+              @change="updateBlockAnyway(false)" />
             <label for="block-with-keywords">Filter with Keywords</label>
           </div>
         </div>
@@ -120,7 +121,9 @@
           <div class="flex flex-row gap-md my-md">
             <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" class="shrink grow" />
             <button @click="addKeyword" class="bg-brand-blue grow-0 shrink-0 text-white px-md py-sm">Add</button>
-            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')"><QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" /></a>
+            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')">
+              <QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" />
+            </a>
           </div>
           <div class="flex flex-row flex-wrap gap-sm">
             <div class="flex flex-row gap-sm items-center mr-md">
@@ -153,40 +156,31 @@
             </div>
           </div>
 
-
           <h4>Search Range</h4>
           <div class="selector-section">
-            <div v-if="!rule.search_block_by_css" class="input-section flex flex-row justify-center gap-sm">
+            <div class="input-section flex flex-row justify-center gap-sm">
               <label class="shrink-0 grow-0 flex items-center justify-center">
-                <span class="count">{{ searchElementsCount }}</span> XPath
+                <span class="count">{{ searchElementsCount }}</span> {{ rule.search_block_by_css ? 'CSS' : 'XPath' }}
               </label>
               <div class="input-group flex flex-row shrink grow">
-                <input type="text" class="shrink grow" v-model="rule.search_block_xpath" />
+                <input type="text" class="shrink grow" 
+                  :value="rule.search_block_by_css ? rule.search_block_css : rule.search_block_xpath" 
+                  @input="updateSearchSelector($event)" />
                 <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
-                  @click="pickPath('search_xpath')">
-                  <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
-                </button>
-              </div>
-            </div>
-            <div v-else class="input-section flex flex-row justify-center gap-sm">
-              <label class="shrink-0 grow-0 flex items-center justify-center">
-                <span class="count">{{ searchElementsCount }}</span> CSS
-              </label>
-              <div class="input-group flex flex-row shrink grow">
-                <input type="text" class="shrink grow" v-model="rule.search_block_css" />
-                <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
-                  @click="pickPath('search_css')">
+                  @click="pickPath(rule.search_block_by_css ? 'search_css' : 'search_xpath')">
                   <img :src="wandUrl" alt="Pick" class="h-[1.5em]" /> Suggest
                 </button>
               </div>
             </div>
             <div class="flex flex-row gap-md">
               <div class="flex flex-row gap-sm">
-                <input type="radio" id="search-xpath" :value="false" v-model="rule.search_block_by_css" />
+                <input type="radio" id="search-xpath" :checked="!rule.search_block_by_css" 
+                  @change="updateSearchBlockByCss(false)" />
                 <label for="search-xpath">XPath</label>
               </div>
               <div class="flex flex-row gap-sm">
-                <input type="radio" id="search-css" :value="true" v-model="rule.search_block_by_css" />
+                <input type="radio" id="search-css" :checked="rule.search_block_by_css" 
+                  @change="updateSearchBlockByCss(true)" />
                 <label for="search-css">CSS</label>
               </div>
             </div>
@@ -236,6 +230,7 @@ const emit = defineEmits<{
   (e: 'test'): void
   (e: 'close'): void
   (e: 'pick-path', type: string): void
+  (e: 'update:rule', rule: Rule): void
 }>()
 
 const newKeyword = ref('')
@@ -269,14 +264,66 @@ const searchElementsCount = computed(() => {
 const isUrlValid = computed(() => {
   try {
     const regexp = props.rule.specify_url_by_regexp
-    ? new RegExp(props.rule.site_regexp, 'i')
-    : new RegExp(props.rule.site_regexp.replace(/\*/g, '.*'), 'i')
-  return regexp.test(window.location.href)
+      ? new RegExp(props.rule.site_regexp, 'i')
+      : new RegExp(props.rule.site_regexp.replace(/\*/g, '.*'), 'i')
+    return regexp.test(window.location.href)
   } catch(e) {
     return false
   }
-  
 })
+
+const updateRule = (updatedFields: Partial<Rule>) => {
+  emit('update:rule', { ...props.rule, ...updatedFields })
+}
+
+const updateTitle = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  updateRule({ title: value })
+}
+
+const updateSiteUrl = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  if (props.rule.specify_url_by_regexp) {
+    updateRule({ site_regexp: value })
+  } else {
+    updateRule({ url: value })
+  }
+}
+
+const updateSpecifyUrlByRegexp = (event: Event) => {
+  const value = (event.target as HTMLInputElement).checked
+  updateRule({ specify_url_by_regexp: value })
+}
+
+const updateHideSelector = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  if (props.rule.hide_block_by_css) {
+    updateRule({ hide_block_css: value })
+  } else {
+    updateRule({ hide_block_xpath: value })
+  }
+}
+
+const updateHideBlockByCss = (value: boolean) => {
+  updateRule({ hide_block_by_css: value })
+}
+
+const updateSearchSelector = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  if (props.rule.search_block_by_css) {
+    updateRule({ search_block_css: value })
+  } else {
+    updateRule({ search_block_xpath: value })
+  }
+}
+
+const updateSearchBlockByCss = (value: boolean) => {
+  updateRule({ search_block_by_css: value })
+}
+
+const updateBlockAnyway = (value: boolean) => {
+  updateRule({ block_anyway: value })
+}
 
 const addKeyword = () => {
   if (newKeyword.value.trim()) {
@@ -287,14 +334,17 @@ const addKeyword = () => {
         && word.is_case_sensitive === caseSensitive.value
         && word.is_include_href === includeLinkUrl.value
     )
+    
     if (!exists) {
-      props.rule.words.push({
+      const updatedWords = [...props.rule.words, {
         text: newKeyword.value.trim(),
         is_regexp: regexMatch.value,
         is_complete_matching: completeMatch.value,
         is_case_sensitive: caseSensitive.value,
         is_include_href: includeLinkUrl.value,
-      })
+      }]
+      
+      updateRule({ words: updatedWords })
     }
     
     newKeyword.value = ''
@@ -306,12 +356,15 @@ const addKeyword = () => {
 }
 
 const removeKeyword = (index: number) => {
-  props.rule.words.splice(index, 1)
+  const updatedWords = [...props.rule.words]
+  updatedWords.splice(index, 1)
+  updateRule({ words: updatedWords })
 }
 
 const pickPath = (type: string) => {
   emit('pick-path', type)
 }
+
 const openHelp = (url: string) => {
   const fullUrl = browser.runtime.getURL(url)
   window.open(fullUrl, 'new', 'width=450,height=500')
@@ -353,7 +406,6 @@ const openHelp = (url: string) => {
   margin: 4px 0;
   font-size: 14px;
 }
-
 
 .selector-section {
   margin-bottom: 6px;
