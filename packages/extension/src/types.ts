@@ -64,4 +64,3 @@ export interface RuleValidation {
   hide_block_css?: string
   hide_block_description?: string
 }
-

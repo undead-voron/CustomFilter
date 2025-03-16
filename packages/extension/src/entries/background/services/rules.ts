@@ -35,6 +35,7 @@ export default class RulesService {
         }
       }
       catch (e) {
+        // eslint-disable-next-line no-console
         console.log(e)
       }
     }

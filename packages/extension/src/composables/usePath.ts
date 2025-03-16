@@ -113,7 +113,8 @@ export function usePathAnalyzer() {
         const xpath = builder.getMultipleTagNameAndClassNameExpression(tagName, classes[i])
         options.push(xpath)
       }
-    }else if (classes.length === 1 && tagName !== 'BODY') {
+    }
+    else if (classes.length === 1 && tagName !== 'BODY') {
       const className = classes[0]
       options.push(builder.getSingleTagNameAndClassNameExpression(node.tagName, className))
     }
@@ -143,7 +144,7 @@ export function usePathAnalyzer() {
       const ancestors: ReturnType<typeof createPathElement>[] = []
       let node = targetNode
       let index = 0
-     
+
       while (node) {
         if (rootNodeValue === node)
           break
@@ -170,9 +171,11 @@ export function usePathAnalyzer() {
           str = current.path + str
           if (current.hasId) {
             // do nothing
-          }else if ((next && next.index === current.index + 1) || current.path === 'BODY') {
+          }
+          else if ((next && next.index === current.index + 1) || current.path === 'BODY') {
             str = builder.getChildSeparator() + str
-          } else {
+          }
+          else {
             str = builder.getDescendantSeparator() + str
           }
         }
@@ -188,17 +191,17 @@ export function usePathAnalyzer() {
           const cloneSeq = cloneArray(seq)
           const option = current.options[i]
           cloneSeq.push({ path: option, index })
-         
+
           if (cloneSeq.length < SEQ_LIMIT && ancestors.length > index + 1)
             scan(index + 1, cloneArray(cloneArray(cloneSeq)))
-         
+
           addSeq(cloneSeq)
         }
-       
+
         // Add Nothing
         if (index > 0 && seq.length < SEQ_LIMIT && ancestors.length > index + 1)
           scan(index + 1, cloneArray(seq))
-       
+
         if (rootNodeValue === document.body && current.node.id) {
           const cloneSeq = cloneArray(seq)
           cloneSeq.push({ path: builder.getIdExpression(current.node.id), index, hasId: true })
@@ -209,17 +212,17 @@ export function usePathAnalyzer() {
       // Start path generation
       if (ancestors.length > 0)
         scan(0, [])
-     
+
       // Add base path if provided
       if (basePathValue.length > 0) {
         pathList.push(builder.createPathFilter(basePathValue))
       }
-     
+
       // Add all unique paths to pathList
       for (let i = 0, l = uniqPathList.length; i < l; i++) {
         try {
           const path = builder.createPathFilter(basePathValue + uniqPathList[i])
-         
+
           // Exclude nested elements
           let nested = false
           for (let elementIndex = 0; elementIndex < path.elements.length; elementIndex++) {
@@ -229,10 +232,11 @@ export function usePathAnalyzer() {
               nested = true
             }
           }
-         
+
           if (!nested)
             pathList.push(path)
-        } catch (ex) {
+        }
+        catch (ex) {
           // Silent error
         }
       }
@@ -247,7 +251,7 @@ export function usePathAnalyzer() {
       // Filter to keep only unique element counts
       const result: PathFilter[] = []
       let prevPath = null
-     
+
       for (let i = 0, l = pathList.length; i < l; i++) {
         const path = pathList[i]
         if (!prevPath || prevPath.elements.length !== path.elements.length) {
@@ -255,7 +259,7 @@ export function usePathAnalyzer() {
         }
         prevPath = path
       }
-     
+
       return result
     }
 

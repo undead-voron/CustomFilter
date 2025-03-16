@@ -5,7 +5,7 @@ abstract class StyleProcessor {
   abstract attributeJs: string
   abstract value: string
   private originalNodeStylesContainer = new Map<HTMLElement, string>()
-  
+
   apply(node: HTMLElement) {
     if (this.originalNodeStylesContainer.has(node)) {
       return
@@ -43,7 +43,6 @@ abstract class StyleProcessor {
   getNodeCount() {
     return this.originalNodeStylesContainer.size
   }
-
 }
 
 @InjectableService()

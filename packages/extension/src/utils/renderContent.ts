@@ -17,7 +17,8 @@ export default async function renderContent(
       if (document.body.contains(appContainer)) {
         document.body.removeChild(appContainer)
       }
-    } else {
+    }
+    else {
       // If appRoot has content and appContainer is not in the DOM, reattach it
       if (!document.body.contains(appContainer)) {
         document.body.appendChild(appContainer)

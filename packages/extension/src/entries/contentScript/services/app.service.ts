@@ -3,11 +3,11 @@ import { type App, createApp } from 'vue'
 import RulesEditor from '~/entries/contentScript/components/App.vue'
 import ElementHighlighter from '~/entries/contentScript/services/elementsHighlighter'
 import RulesExecutor from '~/entries/contentScript/services/rulesExecutor'
+import { TestNodes } from '~/entries/contentScript/services/stylesController'
+import ExtensionStateService from '~/services/extensionState'
 import RulesSevice from '~/services/storage'
 import { Rule } from '~/types'
 import renderContent from '../../../utils/renderContent'
-import { TestNodes } from '~/entries/contentScript/services/stylesController'
-import ExtensionStateService from '~/services/extensionState'
 
 @InjectableService()
 export default class Main {
@@ -18,7 +18,7 @@ export default class Main {
     protected elementsHighliter: ElementHighlighter,
     protected cbStorage: RulesSevice,
     protected testNodesList: TestNodes,
-    protected extensionState: ExtensionStateService
+    protected extensionState: ExtensionStateService,
   ) {}
 
   async init() {
@@ -67,14 +67,13 @@ export default class Main {
         this.elementsHighliter.highlightSearchElements(el)
       })
       .provide('testRule', (rule: Rule) => {
-        console.log('testing rule', rule)
         this.testNodesList.revertAll()
         const nodes = this.rulesExecutor.getNodesForRule(rule)
         for (const node of nodes) {
           this.testNodesList.apply(node)
         }
       })
-      .provide('shadowRoot', this.appRoot.parentNode);
+      .provide('shadowRoot', this.appRoot.parentNode)
 
     this.ui.mount(this.appRoot)
   }

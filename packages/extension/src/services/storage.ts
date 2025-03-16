@@ -120,6 +120,7 @@ export default class RulesService {
         return regex.test(url)
       }
       catch (e) {
+        // eslint-disable-next-line no-console
         console.log(e)
         return false
       }

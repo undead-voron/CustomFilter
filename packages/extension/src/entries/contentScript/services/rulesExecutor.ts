@@ -20,7 +20,8 @@ function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T
           throttled()
         }
       }, limit)
-    } else {
+    }
+    else {
       shouldExecute = true
     }
   }) as T
@@ -44,7 +45,7 @@ export default class RulesExecutor {
   constructor(
     public hiddenNodesList: HiddenNodes,
     public rulesService: RulesService,
-    public extensionState: ExtensionStateService
+    public extensionState: ExtensionStateService,
   ) { }
 
   async init() {
@@ -75,7 +76,7 @@ export default class RulesExecutor {
 
   stopBlocking() {
     if (this.mutationObserver) {
-      this.mutationObserver.disconnect();
+      this.mutationObserver.disconnect()
     }
     return this
   }
@@ -91,7 +92,7 @@ export default class RulesExecutor {
       .clearRules()
       .removeBlockCss()
       .hiddenNodesList
-        .revertAll()
+      .revertAll()
 
     sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
 
@@ -119,11 +120,12 @@ export default class RulesExecutor {
       this.executeHideRules()
     }
     // Set up MutationObserver to watch for DOM changes
-    this.mutationObserver = this.mutationObserver || new MutationObserver(this.throttledExecuteHideRules);
+    this.mutationObserver = this.mutationObserver || new MutationObserver(this.throttledExecuteHideRules)
     try {
       // disconnect existing observer just in case
       this.mutationObserver.disconnect()
-    } catch (e) {
+    }
+    catch (e) {
       // ignore
     }
 
@@ -132,7 +134,7 @@ export default class RulesExecutor {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['style', 'class']
+      attributeFilter: ['style', 'class'],
     })
     return this
   }
@@ -166,7 +168,8 @@ export default class RulesExecutor {
 
     if (isValidSearchBlock) {
       searchNodes = [...containerNodes]
-    } else {
+    }
+    else {
       searchNodes = (rule.block_anyway)
         ? []
         : ((rule.search_block_by_css) ? getElementsByCssSelector(rule.search_block_css) : getElementsByXPath(rule.search_block_xpath)) as HTMLElement[]
