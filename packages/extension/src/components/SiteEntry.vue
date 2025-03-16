@@ -15,9 +15,9 @@
 </template>
 
 <script setup lang="ts">
+import RuleWrapper from './RuleWrapper.vue'
 import { ref, computed, watch, onMounted } from 'vue'
 import type { PropType } from 'vue'
-import RuleWrapper from './RuleWrapper.vue'
 import type { Rule as RuleType } from '~/services/types'
 import browser from 'webextension-polyfill'
 

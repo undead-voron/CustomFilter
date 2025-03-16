@@ -71,7 +71,7 @@ const ManifestV3 = {
   background: {
     service_worker: 'src/entries/background/serviceWorker.ts',
   },
-  host_permissions: ['*://*/*'],
+  // host_permissions: ['*://*/*'],
   web_accessible_resources: [{
     resources,
     matches: ['*://*/*'],
