@@ -71,7 +71,6 @@ export default class RulesService {
         rules.push(rule)
       }
 
-      console.log('saving rules', rules)
       await browser.storage.local.set({ [RULES_STORAGE_KEY]: rules })
     }
     catch (error) {

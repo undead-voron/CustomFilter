@@ -151,7 +151,6 @@ const setupPathPickerHandlers = () => {
 }
 
 watch(container, (newVal) => {
-  console.log('PathPicker new value', newVal)
   if (newVal) {
     newVal.parentNode?.removeChild(newVal)
     shadowRoot.appendChild(newVal)
@@ -170,7 +169,6 @@ const removePathPickerHandlers = () => {
 
 onMounted(() => {
   setupPathPickerHandlers()
-  console.log('mounted')
 })
 
 onBeforeUnmount(() => {

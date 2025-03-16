@@ -38,7 +38,7 @@ export default class RulesService {
         console.log(e)
       }
     }
-    console.log('returning rules', rules)
+
     return rules
   }
 

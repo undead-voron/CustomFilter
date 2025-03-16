@@ -35,8 +35,7 @@ export function findWord(node: Element, rule: Rule): Word | null {
             return word
           }
         } catch (ex) {
-          console.log('RuleEx ERROR')
-          console.log(ex)
+          console.log('RuleEx ERROR', ex)
         }
       }
       else {
@@ -54,8 +53,7 @@ export function findWord(node: Element, rule: Rule): Word | null {
     }) || null
   }
   catch (ex) {
-    console.log('RuleEx ERROR')
-    console.log(ex)
+    console.log('RuleEx ERROR', ex)
     return null
   }
 }

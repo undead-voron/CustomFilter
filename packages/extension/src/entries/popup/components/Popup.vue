@@ -74,7 +74,6 @@ const {value: rules} = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
 const {value: isDisabled} = useBrowserStorage<boolean>(EXTENSION_DISABLED_STORAGE_KEY, false)
 
 const activeRules = computed(() => {
-  console.log('rules', rules)
   return rules.value.filter(rule => {
     try {
         let regex
@@ -126,7 +125,6 @@ const deleteRule = (rule: Rule) => {
 // }
 
 const setEnabledState = async (isEnabled: boolean) => {
-  console.log('setEnabledState', isEnabled)
   browser.storage.local.set({ [EXTENSION_DISABLED_STORAGE_KEY]: !isEnabled })
 }
 

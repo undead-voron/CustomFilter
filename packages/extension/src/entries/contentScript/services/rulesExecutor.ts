@@ -102,7 +102,6 @@ export default class RulesExecutor {
     if (this.extensionState.isDisabled) {
       return
     }
-    console.log('start blocking', this.rules)
     for (const rule of this.rules) {
       const cssSelector = getXPathCssSelector(rule)
       if (cssSelector) {
