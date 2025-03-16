@@ -1,7 +1,7 @@
 {
   "name": "custom-blocker",
   "displayName": "CustomBlocker",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Filter any element on any web site with any condition with XPath, CSS Selector & RegExp",
   "author": "Den Inozemtsev",
   "type": "module",
@@ -25,7 +25,7 @@
     "web-ext": "^7.8.0"
   },
   "dependencies": {
-    "deco-ext": "^1.0.0",
+    "deco-ext": "^1.1.1",
     "draggable": "^4.2.0",
     "postcss": "^8.5.3",
     "postcss-import": "^16.1.0",

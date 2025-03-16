@@ -1,4 +1,4 @@
-import type { PathBuilder, PathFilter } from '~/services/types'
+import type { PathBuilder, PathFilter } from '~/types'
 
 import {
   getElementsByCssSelector,

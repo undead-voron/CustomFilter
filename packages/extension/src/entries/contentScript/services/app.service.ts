@@ -1,12 +1,12 @@
 import { InjectableService, messageData, onMessage } from 'deco-ext'
 import { type App, createApp } from 'vue'
 import RulesEditor from '~/entries/contentScript/components/RuleEditor.vue'
-import ElementHighlighter from '~/services/elementsHighlighter'
-import RulesExecutor from '~/services/rulesExecutor'
+import ElementHighlighter from '~/entries/contentScript/services/elementsHighlighter'
+import RulesExecutor from '~/entries/contentScript/services/rulesExecutor'
 import RulesSevice from '~/services/storage'
-import { Rule } from '~/services/types'
-import renderContent from '../renderContent'
-import { TestNodes } from '~/services/stylesController'
+import { Rule } from '~/types'
+import renderContent from '../../../utils/renderContent'
+import { TestNodes } from '~/entries/contentScript/services/stylesController'
 import ExtensionStateService from '~/services/extensionState'
 
 @InjectableService()
@@ -35,13 +35,13 @@ export default class Main {
     })
   }
 
-  @onMessage({ name: 'createRule' })
+  @onMessage({ key: 'createRule' })
   createRule() {
     const rule = this.cbStorage.createRule()
     this.mountEditor(rule)
   }
 
-  @onMessage({ name: 'updateRule' })
+  @onMessage({ key: 'updateRule' })
   async updateRule(@messageData('id')id: number) {
     const rule = await this.cbStorage.getRuleById(id)
 

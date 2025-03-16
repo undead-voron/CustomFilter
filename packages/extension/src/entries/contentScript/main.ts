@@ -1,6 +1,6 @@
 import { resolve } from 'deco-ext'
-import RulesExecutor from '~/services/rulesExecutor'
-import './app.service'
+import RulesExecutor from '~/entries/contentScript/services/rulesExecutor'
+import './services/app.service.ts'
 
 (async () => {
   const rulesExecutor = await resolve(RulesExecutor)

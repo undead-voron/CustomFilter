@@ -1,4 +1,4 @@
-import type { Rule } from './types'
+import type { Rule } from '../../../types'
 import { InjectableService } from 'deco-ext'
 import { getElementsByCssSelector, getElementsByXPath } from '~/utils'
 

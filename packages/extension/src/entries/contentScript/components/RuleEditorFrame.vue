@@ -210,12 +210,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Rule } from '~/services/types';
+import type { Rule } from '~/types';
 import { ref, computed } from 'vue'
-import PathPicker from './PathPicker.vue'
 import { getElementsByCssSelector, getElementsByXPath } from '~/utils';
 import wand from '~/assets/wand_transparent.png'
-import help from '~/assets/help_icon.png'
 import browser from 'webextension-polyfill';
 import RegexpImg from '~/components/img/Regex.vue'
 import CaseSensitiveImg from '~/components/img/CaseSensitive.vue'
@@ -223,9 +221,7 @@ import CompleteMatchImg from '~/components/img/CompleteMatch.vue'
 import IncludeUrlImg from '~/components/img/IncludeUrl.vue'
 import QuestionMarkImg from '~/components/img/QuestionMark.vue'
 
-
 const wandUrl = new URL(wand, import.meta.url).href;
-const helpUrl = new URL(help, import.meta.url).href;
 const props = defineProps<{
   rule: Rule
 }>()

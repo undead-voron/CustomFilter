@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref,  unref, inject } from 'vue'
-import type { Rule } from '~/services/types'
+import type { Rule } from '~/types'
 import RuleEditorFrame from './RuleEditorFrame.vue'
 import PathPicker from './PathPicker.vue'
 import useDraggable from '~/composables/useDraggable';

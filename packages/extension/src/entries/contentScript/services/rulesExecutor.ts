@@ -1,10 +1,9 @@
-import type { Rule, Word } from './types'
+import type { Rule } from '../../../types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
 import { findWord, getElementsByCssSelector, getElementsByXPath, getXPathCssSelector } from '~/utils'
-import RulesService from './storage'
+import RulesService from '../../../services/storage'
 import { HiddenNodes } from './stylesController'
-import ExtensionStateService from './extensionState'
-import { send } from 'vite'
+import ExtensionStateService from '../../../services/extensionState'
 
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
   let inThrottle = false;

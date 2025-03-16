@@ -1,4 +1,4 @@
-import type { Rule, Word } from '~/services/types'
+import type { Rule, Word } from '~/types'
 
 export function findWord(node: Element, rule: Rule): Word | null {
   try {

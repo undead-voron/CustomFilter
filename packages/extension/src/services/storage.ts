@@ -1,4 +1,4 @@
-import type { Rule, Word, WordGroup } from '~/services/types'
+import type { Rule, Word, WordGroup } from '~/types'
 import { InjectableService } from 'deco-ext'
 import browser from 'webextension-polyfill'
 import { wildcardToRegExp } from '~/utils'
@@ -34,7 +34,7 @@ export default class RulesService {
       url: location?.href ?? '',
       site_regexp: escapeStringForRegExp(location?.href ?? ''),
       example_url: location?.href ?? '',
-      block_anyway: false,
+      block_anyway: true,
       hide_block_by_css: true,
       search_block_by_css: true,
       specify_url_by_regexp: false,

@@ -1,8 +1,7 @@
-import type { Rule } from './types'
-import { InjectableService, messageData, onMessage, onTabActivated } from 'deco-ext'
+import type { Rule } from '../../../types'
+import { InjectableService, messageData, onMessage } from 'deco-ext'
 import browser from 'webextension-polyfill'
 import { RULES_STORAGE_KEY, wildcardToRegExp } from '~/utils'
-import { escapeStringForRegExp } from '~/utils/string-utils'
 
 @InjectableService()
 export default class RulesService {
@@ -18,7 +17,7 @@ export default class RulesService {
     })
   }
 
-  @onMessage({ name: 'getRulesByURL' })
+  @onMessage({ key: 'getRulesByURL' })
   async getRulesByURL(@messageData('url') url: string): Promise<Rule[]> {
     const list: Rule[] = this.appliedRules
     const rules: Rule[] = []
@@ -43,17 +42,7 @@ export default class RulesService {
     return rules
   }
 
-  // TODO: move to tabs manager
-  @onTabActivated()
-  async onTabsActivated(tab: browser.Tabs.OnActivatedActiveInfoType): Promise<void> {
-    // const action = browser.browserAction || browser.action
-    // const applied = this.appliedRules[tab.id]
-    // let iconPath = `icon/${(applied) ? 'icon.png' : 'icon_disabled.png'}`
-
-    // TODO: add icon change
-  }
-
-  @onMessage({ name: 'toggleRule' })
+  @onMessage({ key: 'toggleRule' })
   toggleRule(@messageData('id')id: number): void {
     const rule = this.appliedRules.findIndex(rule => rule.rule_id === id)
     if (rule !== -1) {
@@ -62,7 +51,8 @@ export default class RulesService {
       browser.storage.local.set({ [RULES_STORAGE_KEY]: rulesCopy })
     }
   }
-  @onMessage({ name: 'deleteRule' })
+
+  @onMessage({ key: 'deleteRule' })
   deleteRule(@messageData('id') id: number): void {
     const rulesCopy = [...this.appliedRules]
     const ruleIndex = rulesCopy.findIndex(rule => rule.rule_id === id)
@@ -70,20 +60,5 @@ export default class RulesService {
       rulesCopy.splice(ruleIndex, 1)
     }
     browser.storage.local.set({ [RULES_STORAGE_KEY]: rulesCopy })
-  }
-  
-
-  @onMessage({ name: 'getAppliedRules' })
-  async getAppliedRules(): Promise<Rule[]> {
-    // TODO: consider changing it
-    // TODO: implment filter for current tab
-    // something like
-    // const currentTab = await browser.tabs.query({active: true, currentWindow: true})
-    // const url = currentTab[0]?.url
-    // if (url) {
-    //   const appliedRules = Object.values(this.appliedRules).flat().filter(rule => rule.url === url)
-    //   return appliedRules
-    // }
-    return this.appliedRules
   }
 }

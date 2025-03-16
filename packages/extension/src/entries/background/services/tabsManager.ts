@@ -4,12 +4,12 @@ import browser from 'webextension-polyfill'
 @InjectableService()
 export default class TabsManager {
   @onInstalled({ reason: 'install' })
-  @onMessage({ name: 'openPreferences' })
+  @onMessage({ key: 'openPreferences' })
   async openPreferences(): Promise<void> {
     await browser.tabs.create({ url: browser.runtime.getURL('./src/entries/options/index.html') })
   }
 
-  @onMessage({ name: 'createRule' })
+  @onMessage({ key: 'createRule' })
   async createRule(): Promise<void> {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true })
     if (tabs.length > 0) {
@@ -17,7 +17,7 @@ export default class TabsManager {
     }
   }
 
-  @onMessage({ name: 'updateRule' })
+  @onMessage({ key: 'updateRule' })
   async updateRule(@messageData('id') id: number): Promise<void> {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true })
     if (tabs.length > 0) {
@@ -25,7 +25,7 @@ export default class TabsManager {
     }
   }
 
-  @onMessage({ name: 'badge' })
+  @onMessage({ key: 'badge' })
   async setBadge(@messageData('count') text: number | string, @messageSender('tab') tab: browser.Tabs.Tab) {
     const action = browser.action || browser.browserAction
     action.setBadgeText({ tabId: tab.id || 0, text: text ? `${text}` : '' })

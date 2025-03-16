@@ -1,7 +1,7 @@
 <template>
   <div class="popup flex flex-col grow shrink">
     <div class="flex flex-row items-center justify-between">
-      <h1><img src="../img/top_title.png" width="156" alt="CustomBlocker" /></h1>
+      <h1><img :src="topLogoUrl" width="156" alt="CustomBlocker" /></h1>
       <div class="flex flex-row items-center gap-lg px-md">
         <div class="flex flex-row items-center gap-sm">
           <input type="radio" name="extension_enable" id="buttonOn" :value="false" v-model="isDisabled" @change="setEnabledState(true)" />
@@ -48,30 +48,25 @@
         </a>
       </div>
 
-      <!-- <div v-if="showKeywordGroupNote" class="note note--dismissable">
-        <a :href="keywordGroupUrl" target="_blank" class="note__link">
-          Keyword groups feature is supported in version 4.x!
-        </a>
-        <a href="#" class="note__dismiss" @click.prevent="dismissKeywordGroupNote">×</a>
-      </div> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import RuleListItem from './components/RuleListItem.vue'
-import type { Rule } from '../types'
+import { ref, computed } from 'vue'
+import RuleListItem from './RuleListItem.vue'
+import type { Rule } from '~/types'
 import {sendMessageToBackground} from 'deco-ext'
 import browser from 'webextension-polyfill'
 import Plus from '~/components/img/Plus.vue'
 import { useBrowserStorage } from '~/composables/useBrowserStorage'
 import { RULES_STORAGE_KEY, EXTENSION_DISABLED_STORAGE_KEY,  wildcardToRegExp } from '~/utils'
+import TopLogo from '~/assets/top_title.png';
 
 // const isEnabled = ref(true)
 const version = ref(`${browser.runtime.getManifest().version}`)
 const showKeywordGroupNote = ref(true)
-const keywordGroupUrl = 'pref/word_group.html'
+const topLogoUrl = new URL(TopLogo, import.meta.url).href;
 
 const props = defineProps<{activeUrl: string}>()
 
@@ -79,6 +74,7 @@ const {value: rules} = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
 const {value: isDisabled} = useBrowserStorage<boolean>(EXTENSION_DISABLED_STORAGE_KEY, false)
 
 const activeRules = computed(() => {
+  console.log('rules', rules)
   return rules.value.filter(rule => {
     try {
         let regex
@@ -124,10 +120,10 @@ const deleteRule = (rule: Rule) => {
   sendMessageToBackground('deleteRule', {id: rule.rule_id})
 }
 
-const dismissKeywordGroupNote = () => {
-  showKeywordGroupNote.value = false
-  // TODO: Save dismissal state to storage
-}
+// const dismissKeywordGroupNote = () => {
+//   showKeywordGroupNote.value = false
+//   // TODO: Save dismissal state to storage
+// }
 
 const setEnabledState = async (isEnabled: boolean) => {
   console.log('setEnabledState', isEnabled)
