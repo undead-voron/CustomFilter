@@ -1,6 +1,6 @@
 import { InjectableService, messageData, onMessage } from 'deco-ext'
 import { type App, createApp } from 'vue'
-import RulesEditor from '~/entries/contentScript/components/RuleEditor.vue'
+import RulesEditor from '~/entries/contentScript/components/App.vue'
 import ElementHighlighter from '~/entries/contentScript/services/elementsHighlighter'
 import RulesExecutor from '~/entries/contentScript/services/rulesExecutor'
 import RulesSevice from '~/services/storage'
