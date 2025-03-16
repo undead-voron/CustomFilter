@@ -1,30 +1,30 @@
-import type { Rule } from '../../../types'
+import type { Rule } from '~/types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
+import ExtensionStateService from '~/services/extensionState'
+import RulesService from '~/services/storage'
 import { findWord, getElementsByCssSelector, getElementsByXPath, getXPathCssSelector } from '~/utils'
-import RulesService from '../../../services/storage'
 import { HiddenNodes } from './stylesController'
-import ExtensionStateService from '../../../services/extensionState'
 
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
-  let inThrottle = false;
-  let shouldExecute = false;
-  
+  let inThrottle = false
+  let shouldExecute = false
+
   const throttled = ((...args: any[]) => {
     if (!inThrottle) {
-      inThrottle = true;
-      shouldExecute = false;
-      func(...args);
+      inThrottle = true
+      shouldExecute = false
+      func(...args)
       setTimeout(() => {
-        inThrottle = false;
+        inThrottle = false
         if (shouldExecute) {
           throttled()
         }
-      }, limit);
+      }, limit)
     } else {
-      shouldExecute = true;
+      shouldExecute = true
     }
-  }) as T;
-  return throttled;
+  }) as T
+  return throttled
 }
 
 @InjectableService()
@@ -69,7 +69,7 @@ export default class RulesExecutor {
     this.revert()
     this.rules = rules
     this.rulesUrl = url
-    console.log('update rules', this.rules)
+
     this.startBlocking()
   }
 
@@ -108,56 +108,12 @@ export default class RulesExecutor {
       if (cssSelector) {
         this.addBlockCss(cssSelector)
       }
-      // Set labels for tooltips in pop-up window
-      // for (const word of rule.words) {
-      //   word.label = String(word.word)
-      // }
-      // // TODO: add word groups later
-      // for (const group of rule.wordGroups) {
-      //   for (const word of group.words) {
-      //     word.label = `${String(group.name)}>${String(word.word)}`
-      //   }
-      // }
-      // let wordIdIncr = 0
-      // // this stuff mutates words. TODO: refactore it
-      // eachWords(rule, (word: Word) => {
-      //   word.word_id = wordIdIncr++
-      //   // this stuff mutates words. TODO: refactore it
-      //   if (word.is_regexp) {
-      //     try {
-      //       if (word.is_complete_matching) {
-      //         // Append "^" and "$"
-      //         let expression = (word.text.charAt(0) !== '^') ? '^' : ''
-      //         expression += word.text
-      //         expression += ((word.text.charAt(word.text.length - 1) !== '$') ? '$' : '')
-      //         if (word.is_case_sensitive) {
-      //           word.regExp = new RegExp(expression)
-      //         }
-      //         else {
-      //           word.regExp = new RegExp(expression, 'i')
-      //         }
-      //       }
-      //       else {
-      //         if (word.is_case_sensitive) {
-      //           word.regExp = new RegExp(word.word)
-      //         }
-      //         else {
-      //           word.regExp = new RegExp(word.word, 'i')
-      //         }
-      //       }
-      //     }
-      //     catch (ex) {
-      //       console.log(`Invalid RegExp: "${word.word}"`)
-      //     }
-      //   }
-      // })
     }
     let needBlocking = false
     for (const rule of this.rules) {
       if (!rule.is_disabled)
         needBlocking = true
     }
-    console.log('checking blocking', needBlocking, this.rules)
     // TODO: consider removing this condition. I see no point in it. Just execute the block itself
     if (needBlocking) {
       // Execute hide rules immediately once
@@ -171,7 +127,7 @@ export default class RulesExecutor {
     } catch (e) {
       // ignore
     }
-    
+
     // Start observing the document with configured parameters
     this.mutationObserver.observe(document.body, {
       childList: true,
@@ -254,118 +210,5 @@ export default class RulesExecutor {
     if (this.hiddenNodesList.getNodeCount() > 0) {
       sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
     }
-  }
-
-  applyRule(rule: Rule, ignoreHidden: boolean, onHide: (el: HTMLElement) => void, isTesting: boolean) {
-    let needRefreshBadge = false
-    const hideNodes = (rule.hide_block_by_css)
-      ? getElementsByCssSelector(rule.hide_block_css)
-      : getElementsByXPath(rule.hide_block_xpath)
-    let searchNodes: HTMLElement[]
-    if ((rule.search_block_by_css && !rule.search_block_css)
-      || (!rule.search_block_by_css && !rule.search_block_xpath)) {
-      searchNodes = []
-      for (let i = 0; i < hideNodes.length; i++) {
-        searchNodes.push(hideNodes[i] as HTMLElement)
-      }
-    }
-    else {
-      searchNodes = (rule.block_anyway)
-        ? []
-        : ((rule.search_block_by_css) ? getElementsByCssSelector(rule.search_block_css) : getElementsByXPath(rule.search_block_xpath)) as HTMLElement[]
-    }
-    for (const node of searchNodes) {
-      // Check keywords
-      if (node.getAttribute('containsNgWord')) {
-        continue
-      }
-      const foundWord = findWord(node, rule)
-      if (foundWord) {
-        node.containsNgWord = true
-        node.setAttribute('containsNgWord', 'true')
-        node.setAttribute('foundWord', `${foundWord.word_id}`)
-      }
-    }
-    // console.log('hide nodes', hideNodes)
-    for (let i = 0, l = hideNodes.length; i < l; i++) {
-      const node = hideNodes[i] as HTMLElement
-      if (node.style.display === 'none') {
-        continue
-      }
-      let shouldBeHidden = rule.block_anyway
-      let foundChild = null
-      console.log('some filtering here')
-      if (!shouldBeHidden) {
-        foundChild = this.findFlaggedChild(node, searchNodes)
-        if (foundChild) {
-          shouldBeHidden = true
-        }
-      }
-      if ((ignoreHidden || !node.hideDone) && shouldBeHidden) {
-        if (!node.defaultStyles) {
-          node.defaultStyles = {
-            backgroundColor: node.style.backgroundColor,
-            display: node.style.display,
-          }
-        }
-        // TODO: refactore it. This implementation is terrible
-        node.hideDone = true
-        needRefreshBadge = true
-        rule.hiddenCount = (rule.hiddenCount) ? rule.hiddenCount + 1 : 1
-        if (foundChild) {
-          if (!rule.appliedWordsMap) {
-            rule.appliedWordsMap = []
-          }
-          const wordId = foundChild.getAttribute('foundWord')
-          if (wordId) {
-            rule.appliedWordsMap[wordId] = (rule.appliedWordsMap[wordId] > 0) ? rule.appliedWordsMap[wordId] + 1 : 1
-          }
-        }
-        // Exec callback
-        if (onHide) {
-          onHide(node)
-        }
-      }
-      else if (isTesting && node.hideDone && !shouldBeHidden) {
-        if (node.defaultStyles) {
-          node.style.backgroundColor = node.defaultStyles.backgroundColor
-          node.style.display = node.defaultStyles.display
-        }
-      }
-    }
-    for (const node of searchNodes) {
-      node.containsNgWord = false
-    }
-    const appliedWords = []
-    for (const key in rule.appliedWordsMap) {
-      appliedWords.push({ word: key, count: rule.appliedWordsMap[key] })
-    }
-    rule.appliedWords = appliedWords
-    if (needRefreshBadge && this.blockedCount > 0) {
-      sendMessageToBackground('badge', { count: this.blockedCount })
-      // window.bgCommunicator.sendRequest('badge', { rules, count: this.blockedCount })
-    }
-  }
-
-  findFlaggedChild(hideNode: HTMLElement, list: HTMLElement[]) {
-    for (let i = 0, l = list.length; i < l; i++) {
-      if (!list[i].getAttribute('containsNgWord')) {
-        continue
-      }
-      if (this.containsAsChild(hideNode, list[i])) {
-        return list[i]
-      }
-    }
-    return null
-  }
-
-  containsAsChild(rootNode: HTMLElement, _node: HTMLElement): boolean {
-    let node = _node
-    while (node) {
-      if (node === rootNode)
-        return true
-      node = node.parentNode
-    }
-    return false
   }
 }
