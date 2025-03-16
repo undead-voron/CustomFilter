@@ -1,0 +1,29 @@
+{
+  "name": "custom-filter",
+  "displayName": "CustomFilter rework project",
+  "type": "module",
+  "version": "1.0.0",
+  "packageManager": "pnpm@9.15.0",
+  "description": "Custom Blocker rework project",
+  "author": "Den Inozemtsev",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky",
+    "ext": "pnpm --filter custom-blocker"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.8.0",
+    "@typescript-eslint/eslint-plugin": "8.12.2",
+    "eslint-plugin-format": "^0.1.2",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "typescript": "^5.6.3"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
+  }
+}
