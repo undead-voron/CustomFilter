@@ -8,6 +8,7 @@ import ExtensionStateService from '~/services/extensionState'
 import RulesSevice from '~/services/storage'
 import { Rule } from '~/types'
 import renderContent from '../../../utils/renderContent'
+import { logInfo } from '~/utils'
 
 @InjectableService()
 export default class Main {
@@ -57,6 +58,7 @@ export default class Main {
 
     this.ui = createApp(RulesEditor, { initialRule: rule, onCloseEditor: () => this.unmount() })
       .provide('saveRule', (rule: Rule) => {
+        logInfo('saveRule', rule)
         this.testNodesList.revertAll()
         this.cbStorage.saveRule(rule)
       })
@@ -67,6 +69,7 @@ export default class Main {
         this.elementsHighliter.highlightSearchElements(el)
       })
       .provide('testRule', (rule: Rule) => {
+        logInfo('testRule', rule)
         this.testNodesList.revertAll()
         const nodes = this.rulesExecutor.getNodesForRule(rule)
         for (const node of nodes) {
