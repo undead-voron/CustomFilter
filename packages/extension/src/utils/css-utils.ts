@@ -39,4 +39,3 @@ export function removeCss(path: string): void {
     }
   }
 }
-

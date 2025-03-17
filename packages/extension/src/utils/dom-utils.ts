@@ -17,12 +17,19 @@ export function getElementsByXPath(xpath: string): Element[] {
   const list: Element[] = []
   try {
     const result = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null)
-    let node: Node | null
-    while (node = result.iterateNext()) {
+    for (
+      // set next node on first iteration
+      let node = result.iterateNext();
+      // check that node exists
+      node;
+      // set next node
+      node = result.iterateNext()
+    ) {
       list.push(node as Element)
     }
   }
   catch (ex) {
+    // eslint-disable-next-line no-console
     console.log(ex)
   }
   return list
@@ -54,24 +61,6 @@ export function xpathToCss(str: string): string | null {
   if (REGEX_FAIL.test(xpath))
     return null
   return xpath
-}
-
-/**
- * Gets elements by XPath relative to a target node
- */
-export function getRelativeElementsByXPath(targetNode: HTMLElement, xpath: string): Element[] {
-  const list: Element[] = []
-  try {
-    const result = document.evaluate(xpath, targetNode, null, XPathResult.ANY_TYPE, null)
-    let node: Node | null
-    while (node = result.iterateNext()) {
-      list.push(node as Element)
-    }
-  }
-  catch (e) {
-    console.log(e)
-  }
-  return list
 }
 
 /**
@@ -148,4 +137,3 @@ export function getContainedElements(ancestorElements: HTMLElement[], elements: 
   }
   return containedElements
 }
-

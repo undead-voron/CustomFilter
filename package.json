@@ -8,8 +8,8 @@
   "author": "Den Inozemtsev",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint ./packages/extension",
+    "lint:fix": "eslint ./packages/extension --fix",
     "prepare": "husky",
     "ext": "pnpm --filter custom-blocker"
   },

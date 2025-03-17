@@ -26,6 +26,7 @@ export function initializeLogger(level = LOG_LEVEL.INFO): void {
  */
 function _write(message: string, level: number, label: string): void {
   if (level >= FILTER_LEVEL) {
+    // eslint-disable-next-line no-console
     console.log(`[${label}] ${message}`)
   }
 }
@@ -64,4 +65,3 @@ export function logWarning(message: string): void {
 export function logError(message: string): void {
   _write(message, LOG_LEVEL.ERROR, 'e')
 }
-

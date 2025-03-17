@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, ref, readonly } from 'vue'
+import { onBeforeUnmount, onMounted, readonly, ref } from 'vue'
 import browser from 'webextension-polyfill'
 
 export function useBrowserStorage<T>(key: string, defaultValue: T) {

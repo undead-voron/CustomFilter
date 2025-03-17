@@ -1,4 +1,4 @@
-import type { Rule } from '~/services/types'
+import type { Rule } from '~/types'
 import { xpathToCss } from './dom-utils'
 
 export function getXPathCssSelector(rule: Rule): string | false {

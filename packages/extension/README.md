@@ -6,7 +6,7 @@ This template should help get you started developing a vue web extension in Vite
 
 The extension manifest is defined in `src/manifest.js` and used by `@samrum/vite-plugin-web-extension` in the vite config.
 
-Background, content scripts, options, and popup entry points exist in the `src/entries` directory. 
+Background, content scripts, options, and popup entry points exist in the `src/entries` directory.
 
 Content scripts are rendered by `src/entries/contentScript/renderContent.js` which renders content within a ShadowRoot
 and handles style injection for HMR and build modes.

@@ -1,4 +1,4 @@
-import type { PathBuilder, PathFilter } from '~/services/types'
+import type { PathBuilder, PathFilter } from '~/types'
 import { useCssBuilder } from '~/composables/usePath'
 
 export class CssBuilder implements PathBuilder {

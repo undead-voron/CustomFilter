@@ -1,4 +1,4 @@
-import { Rule } from '~/services/types'
+import { Rule } from '~/types'
 import { getElementsByXPath } from './dom-utils'
 
 export function isRuleValid(rule: Rule): string[] {

@@ -1,4 +1,4 @@
-import type { Rule, Word, WordGroup } from '~/services/types'
+import type { Rule, Word, WordGroup } from '~/types'
 import { InjectableService } from 'deco-ext'
 import browser from 'webextension-polyfill'
 import { wildcardToRegExp } from '~/utils'
@@ -34,7 +34,7 @@ export default class RulesService {
       url: location?.href ?? '',
       site_regexp: escapeStringForRegExp(location?.href ?? ''),
       example_url: location?.href ?? '',
-      block_anyway: false,
+      block_anyway: true,
       hide_block_by_css: true,
       search_block_by_css: true,
       specify_url_by_regexp: false,
@@ -71,7 +71,6 @@ export default class RulesService {
         rules.push(rule)
       }
 
-      console.log('saving rules', rules)
       await browser.storage.local.set({ [RULES_STORAGE_KEY]: rules })
     }
     catch (error) {
@@ -121,6 +120,7 @@ export default class RulesService {
         return regex.test(url)
       }
       catch (e) {
+        // eslint-disable-next-line no-console
         console.log(e)
         return false
       }

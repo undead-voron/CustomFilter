@@ -1,2 +1,2 @@
-import '~/services/tabsManager'
-import '~/services/rules'
+import '~/entries/background/services/tabsManager.ts'
+import '~/entries/background/services/rules.ts'
