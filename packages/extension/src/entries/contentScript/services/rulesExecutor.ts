@@ -2,7 +2,7 @@ import type { Rule } from '~/types'
 import { InjectableService, sendMessageToBackground } from 'deco-ext'
 import ExtensionStateService from '~/services/extensionState'
 import RulesService from '~/services/storage'
-import { findWord, getElementsByCssSelector, getElementsByXPath, getXPathCssSelector } from '~/utils'
+import { findWord, getElementsByCssSelector, getElementsByXPath, getXPathCssSelector, logDebug } from '~/utils'
 import { HiddenNodes } from './stylesController'
 
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
@@ -52,6 +52,7 @@ export default class RulesExecutor {
     this.rules = await sendMessageToBackground('getRulesByURL', { url: location.href })
     this.startBlocking()
     this.rulesService.addRulesUpdateListener(async () => {
+      logDebug('in addRulesUpdateListener')
       // react to rules change (independent from source of change) and re-start blocking
       await this.updateRules()
     })
@@ -59,6 +60,7 @@ export default class RulesExecutor {
       this.revert()
       if (!this.extensionState.isDisabled) {
         this.rules = await this.rulesService.getRulesByUrl(location.href)
+        logDebug('updateRules', this.rules)
         this.startBlocking()
       }
     })
@@ -70,7 +72,7 @@ export default class RulesExecutor {
     this.revert()
     this.rules = rules
     this.rulesUrl = url
-
+    logDebug('updateRules', this.rules)
     this.startBlocking()
   }
 
@@ -92,15 +94,26 @@ export default class RulesExecutor {
       .clearRules()
       .removeBlockCss()
       .hiddenNodesList
-      .revertAll()
+        .revertAll()
 
-    sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
+    this.updateBadge()
 
     return this
   }
 
+  async updateBadge() {
+    const isExtensionDisabled = this.extensionState.isDisabled
+    const hasValidRule = this.rules.some(rule => !rule.is_disabled)
+    if (isExtensionDisabled || !hasValidRule) {
+      await sendMessageToBackground('setInactiveBadge', undefined)
+    } else {
+      await sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
+    }
+  }
+
   startBlocking() {
     if (this.extensionState.isDisabled) {
+      this.updateBadge()
       return
     }
     for (const rule of this.rules) {
@@ -109,12 +122,7 @@ export default class RulesExecutor {
         this.addBlockCss(cssSelector)
       }
     }
-    let needBlocking = false
-    for (const rule of this.rules) {
-      if (!rule.is_disabled)
-        needBlocking = true
-    }
-    // TODO: consider removing this condition. I see no point in it. Just execute the block itself
+    const needBlocking = this.rules.some(rule => !rule.is_disabled)
     if (needBlocking) {
       // Execute hide rules immediately once
       this.executeHideRules()
@@ -145,7 +153,7 @@ export default class RulesExecutor {
       this.styleTag.type = 'text/css'
       document.getElementsByTagName('HEAD')[0].appendChild(this.styleTag)
     }
-    this.styleTag.innerHTML = `${this.styleTag.innerHTML}${xpath}{display:none;}`
+    this.styleTag.innerHTML = `${this.styleTag.innerHTML}${xpath}{display:none !important;}`
   }
 
   removeBlockCss() {
@@ -209,8 +217,9 @@ export default class RulesExecutor {
         this.executeRule(rule)
       }
     }
-    if (this.hiddenNodesList.getNodeCount() > 0) {
-      sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
-    }
+    this.updateBadge()
+    // if (this.hiddenNodesList.getNodeCount() > 0) {
+    //   sendMessageToBackground('badge', { count: this.hiddenNodesList.getNodeCount() })
+    // }
   }
 }

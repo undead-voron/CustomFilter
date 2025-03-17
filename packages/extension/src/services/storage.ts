@@ -1,7 +1,7 @@
 import type { Rule, Word, WordGroup } from '~/types'
 import { InjectableService } from 'deco-ext'
 import browser from 'webextension-polyfill'
-import { wildcardToRegExp } from '~/utils'
+import { logInfo, wildcardToRegExp } from '~/utils'
 import { escapeStringForRegExp, RULES_STORAGE_KEY } from '~/utils/'
 
 @InjectableService()
@@ -71,6 +71,8 @@ export default class RulesService {
         rules.push(rule)
       }
 
+      logInfo('savingRules', { [RULES_STORAGE_KEY]: rules }, rule)
+
       await browser.storage.local.set({ [RULES_STORAGE_KEY]: rules })
     }
     catch (error) {
@@ -82,6 +84,7 @@ export default class RulesService {
   // subscribe to rules update. Return function for unsubscribe
   addRulesUpdateListener(callback: (arg: { oldValue: Rule[], newValue: Rule[] }) => unknown) {
     browser.storage.local.onChanged.addListener(function initialListener(payload) {
+      logInfo('onChanged rules', payload)
       if (payload[RULES_STORAGE_KEY]) {
         callback({
           oldValue: payload[RULES_STORAGE_KEY].oldValue || [],

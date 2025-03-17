@@ -7,8 +7,9 @@
   "author": "Den Inozemtsev",
   "license": "MIT",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build --mode development",
     "watch": "vite build --watch --mode development --minify false",
+    "build:prod": "vite build",
     "dev": "vite",
     "serve:firefox": "web-ext run --start-url \"about:debugging#/runtime/this-firefox\"  --source-dir ./dist/",
     "serve:chrome": "web-ext run -t chromium --start-url \"https://example.com\" --source-dir ./dist/"

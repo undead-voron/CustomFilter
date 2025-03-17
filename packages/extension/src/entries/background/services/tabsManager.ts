@@ -1,4 +1,4 @@
-import { InjectableService, messageData, messageSender, onInstalled, onMessage, onTabUpdated, sendMessageToContent, tabUpdatedDetails, tabUpdatedTab } from 'deco-ext'
+import { InjectableService, messageData, messageSender, onInstalled, onMessage, onTabActivated, onTabCreated, onTabUpdated, sendMessageToContent, tabUpdatedDetails, tabUpdatedTab } from 'deco-ext'
 import browser from 'webextension-polyfill'
 
 @InjectableService()
@@ -29,12 +29,21 @@ export default class TabsManager {
   async setBadge(@messageData('count') text: number | string, @messageSender('tab') tab: browser.Tabs.Tab) {
     const action = browser.action || browser.browserAction
     action.setBadgeText({ tabId: tab.id || 0, text: text ? `${text}` : '' })
+    action.setIcon({ tabId: tab.id || 0, path: '/icons/icon128.png' })
+  }
+
+  @onTabCreated()
+  @onMessage({ key: 'setInactiveBadge' })
+  async setInactiveBadge(@messageSender('tab') tab: Pick<browser.Tabs.Tab, 'id'>) {
+    const action = browser.action || browser.browserAction
+    action.setIcon({ tabId: tab.id || 0, path: '/icons/icon_disabled.png' })
+    action.setBadgeText({ tabId: tab.id || 0, text: '' })
   }
 
   @onTabUpdated()
   async clearBadge(@tabUpdatedTab() tab: browser.Tabs.Tab, @tabUpdatedDetails() details: browser.Tabs.OnUpdatedChangeInfoType): Promise<void> {
     if (details.status) {
-      this.setBadge('', tab)
+      this.setInactiveBadge(tab)
     }
   }
 }
