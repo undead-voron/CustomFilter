@@ -1,4 +1,15 @@
-import { InjectableService, messageData, messageSender, onInstalled, onMessage, onTabActivated, onTabCreated, onTabUpdated, sendMessageToContent, tabUpdatedDetails, tabUpdatedTab } from 'deco-ext'
+import {
+  InjectableService,
+  messageData,
+  messageSender,
+  onInstalled,
+  onMessage,
+  onTabCreated,
+  onTabUpdated,
+  sendMessageToContent,
+  tabUpdatedDetails,
+  tabUpdatedTab,
+} from 'deco-ext'
 import browser from 'webextension-polyfill'
 
 @InjectableService()
