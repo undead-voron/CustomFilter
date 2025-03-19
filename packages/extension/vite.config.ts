@@ -4,7 +4,6 @@ import webExtension from '@samrum/vite-plugin-web-extension'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, loadEnv } from 'vite'
 import swc from 'vite-plugin-swc-transform'
-import buildPostInstall from './build.post_install'
 
 import { getManifest } from './src/manifest'
 
@@ -19,9 +18,6 @@ export default defineConfig(({ mode }) => {
       vue({ script: { propsDestructure: true } }),
       webExtension({
         manifest: getManifest(Number(env.MANIFEST_VERSION) || 3),
-        additionalInputs: {
-          scripts: [{ fileName: './src/entries/post_install/main.ts', webAccessible: true }],
-        },
       }),
       swc({
         swcOptions: {
@@ -36,24 +32,6 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
-      function() {
-				let viteConfig;
-				return {
-					name: 'buildAdditionalPages',
-					enforce: 'post',
-					configResolved(resolvedConfig) {
-						viteConfig = resolvedConfig;
-					},	  
-					async writeBundle() {
-						const outDir = path.resolve(
-							process.cwd(),
-							viteConfig.root,
-							viteConfig.build.outDir
-						);
-						await buildPostInstall(outDir)
-					}
-				}
-			}(),
     ],
     resolve: {
       alias: {

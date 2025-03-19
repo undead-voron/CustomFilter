@@ -22,9 +22,9 @@
 <script setup lang="ts">
 import { ref, computed, inject, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useNodeHighlight } from '~/composables/useNodeHighlight'
-import { usePathPickerDialog } from '~/composables/usePathPickerDialog'
+import { usePathPickerDialogPosition } from '~/composables/usePathPickerDialog'
 
-const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialog()
+const { show, dialogPosition, menuListRef, hasParentNode } = usePathPickerDialogPosition()
 
 // shift list position to the right in order to avoid overlapping with selected element
 const listPosition = computed(() => {
@@ -151,7 +151,6 @@ const setupPathPickerHandlers = () => {
 }
 
 watch(container, (newVal) => {
-  console.log('PathPicker new value', newVal)
   if (newVal) {
     newVal.parentNode?.removeChild(newVal)
     shadowRoot.appendChild(newVal)
@@ -170,7 +169,6 @@ const removePathPickerHandlers = () => {
 
 onMounted(() => {
   setupPathPickerHandlers()
-  console.log('mounted')
 })
 
 onBeforeUnmount(() => {

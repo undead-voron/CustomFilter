@@ -1,7 +1,7 @@
-import type { PathFilter } from '~/services/types'
+import type { PathFilter } from '~/types'
 import { ref } from 'vue'
 
-export function usePathPickerDialog() {
+export function usePathPickerDialogPosition() {
   const dialogPosition = ref<{ left: number, top: number }>({ left: 0, top: 0 })
   const hasParentNode = ref(false)
 

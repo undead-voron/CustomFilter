@@ -13,7 +13,7 @@ export function escapeHTML(str: string): string {
   const regExpAmp = /&/g
   const regExpGt = />/g
   const regExpLt = /</g
-  
+
   return str
     .replace(regExpAmp, '&amp;')
     .replace(regExpGt, '&gt;')
@@ -31,4 +31,3 @@ export function wildcardToRegExp(str: string): string {
 export function escapeStringForRegExp(str: string): string {
   return str.replace(/[\\[.+*?(){|^$]/g, '\\$&')
 }
-

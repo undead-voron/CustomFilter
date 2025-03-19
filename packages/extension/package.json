@@ -1,18 +1,30 @@
 {
   "name": "custom-blocker",
   "displayName": "CustomBlocker",
-  "version": "1.0.4",
+  "type": "module",
+  "version": "1.0.5",
   "description": "Filter any element on any web site with any condition with XPath, CSS Selector & RegExp",
   "author": "Den Inozemtsev",
-  "type": "module",
+  "license": "MIT",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build --mode development",
     "watch": "vite build --watch --mode development --minify false",
+    "build:prod": "vite build",
     "dev": "vite",
     "serve:firefox": "web-ext run --start-url \"about:debugging#/runtime/this-firefox\"  --source-dir ./dist/",
     "serve:chrome": "web-ext run -t chromium --start-url \"https://example.com\" --source-dir ./dist/"
   },
-  "license": "MIT",
+  "dependencies": {
+    "deco-ext": "^1.1.1",
+    "draggable": "^4.2.0",
+    "postcss": "^8.5.3",
+    "postcss-import": "^16.1.0",
+    "postcss-nesting": "^13.0.1",
+    "tailwindcss": "3.4.1",
+    "vite-plugin-swc-transform": "^1.1.0",
+    "vue": "^3.5.13",
+    "webextension-polyfill": "^0.10.0"
+  },
   "devDependencies": {
     "@samrum/vite-plugin-web-extension": "^5.0.0",
     "@types/chrome": "^0.0.254",
@@ -23,16 +35,5 @@
     "vite": "^6.2.0",
     "vue-tsc": "^2.2.4",
     "web-ext": "^7.8.0"
-  },
-  "dependencies": {
-    "deco-ext": "^1.0.0",
-    "draggable": "^4.2.0",
-    "postcss": "^8.5.3",
-    "postcss-import": "^16.1.0",
-    "postcss-nesting": "^13.0.1",
-    "tailwindcss": "3.4.1",
-    "vite-plugin-swc-transform": "^1.1.0",
-    "vue": "^3.5.13",
-    "webextension-polyfill": "^0.10.0"
   }
 }

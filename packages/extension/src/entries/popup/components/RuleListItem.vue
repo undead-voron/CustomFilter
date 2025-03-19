@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Rule } from '~/services/types';
+import type { Rule } from '~/types';
 import Edit from '~/components/img/Edit.vue';
 import Delete from '~/components/img/Delete.vue';
 import OnIcon from '~/assets/on.png';
