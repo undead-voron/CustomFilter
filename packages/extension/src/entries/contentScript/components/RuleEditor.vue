@@ -156,6 +156,21 @@
             </div>
           </div>
 
+          <h4>Keyword Groups</h4>
+          <div class="flex flex-row flex-wrap gap-sm">
+            <div v-for="(group, index) in rule.wordGroups" :key="index"
+              class="flex flex-row gap-sm shrink-0 grow-0 bg-brand-blue text-white px-sm justify-center items-center">
+              <span type="text">{{ group.name }}</span>
+              <button @click="removeKeyword(index)" class="p-0 shrink-0 grow-0">×</button>
+            </div>
+          </div>
+          <select @change="addWordGroup($event.target?.value)">
+            <option value="">----</option>
+            <option v-for="group in availableWordGroups" :key="group.global_identifier" :value="group.global_identifier">
+              {{ group.name }}
+            </option>
+          </select>
+
           <h4>Search Range</h4>
           <div class="selector-section">
             <div class="input-section flex flex-row justify-center gap-sm">
@@ -204,8 +219,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Rule } from '~/types';
-import { ref, computed } from 'vue'
+import type { Rule, WordGroup } from '~/types';
+import { ref, computed, type DeepReadonly } from 'vue'
 import { getElementsByCssSelector, getElementsByXPath } from '~/utils';
 import wand from '~/assets/wand_transparent.png'
 import browser from 'webextension-polyfill';
@@ -218,7 +233,15 @@ import QuestionMarkImg from '~/components/img/QuestionMark.vue'
 const wandUrl = new URL(wand, import.meta.url).href;
 const props = defineProps<{
   rule: Rule
+  wordGroups: DeepReadonly<WordGroup[]>
 }>()
+
+const availableWordGroups = computed(() => {
+  return props.wordGroups
+    .filter(
+      group => !props.rule.wordGroups.find(({global_identifier}) => group.global_identifier === global_identifier)
+    )
+})
 
 const caseSensitive = ref(false)
 const regexMatch = ref(false)
@@ -359,6 +382,14 @@ const removeKeyword = (index: number) => {
   const updatedWords = [...props.rule.words]
   updatedWords.splice(index, 1)
   updateRule({ words: updatedWords })
+}
+
+const addWordGroup = (groupId: string) => {
+  const group = props.wordGroups.find(group => group.global_identifier === groupId)
+  if (group) {
+    const updatedWordGroups = [...props.rule.wordGroups, group]
+    updateRule({ wordGroups: updatedWordGroups })
+  }
 }
 
 const pickPath = (type: string) => {

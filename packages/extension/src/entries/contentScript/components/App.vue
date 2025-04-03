@@ -5,6 +5,7 @@
     </div>
     <RuleEditor 
       :rule="rule" 
+      :word-groups="wordGroups"
       @update:rule="updateRule"
       @save="saveRule" 
       @test="testRule" 
@@ -23,13 +24,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, unref, inject, onMounted } from 'vue'
-import type { Rule } from '~/types'
+import { ref, unref, inject } from 'vue'
+import type { Rule, WordGroup } from '~/types'
 import RuleEditor from './RuleEditor.vue'
 import PathPicker from './PathPicker.vue'
 import useDraggable from '~/composables/useDraggable';
 import { useNotification } from '~/composables/useNotification'
 import { isRuleValid } from '~/utils';
+import { useBrowserStorage } from '~/composables/useBrowserStorage';
 
 const props = defineProps<{
   initialRule: Rule
@@ -42,6 +44,8 @@ const emit = defineEmits<{
 
 const container = ref<HTMLElement | null>(null)
 const rule = ref<Rule>(JSON.parse(JSON.stringify(props.initialRule)))
+
+const { value: wordGroups } = useBrowserStorage('wordGroups', [] as WordGroup[])
 
 // Path picker state
 const showPathPicker = ref(false)
