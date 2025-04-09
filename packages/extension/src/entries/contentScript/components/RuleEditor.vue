@@ -17,19 +17,17 @@
         <div class="flex flex-row justify-center items-center gap-sm">
           <label class="shrink-0 grow-0">URL</label>
 
-          <input type="text" class="flex-1 shrink grow" 
-            :value="rule.specify_url_by_regexp ? rule.site_regexp : rule.url" 
-            @input="updateSiteUrl($event)" />
+          <input type="text" class="flex-1 shrink grow"
+            :value="rule.specify_url_by_regexp ? rule.site_regexp : rule.url" @input="updateSiteUrl($event)" />
 
           <a class="help shrink-0 grow-0" @click="openHelp('/help/site.html')">
             <QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" />
           </a>
         </div>
         <div class="flex flex-row gap-sm items-center">
-          <input type="checkbox" id="specify-url-regexp" 
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
-            :checked="rule.specify_url_by_regexp" 
-            @change="updateSpecifyUrlByRegexp($event)" />
+          <input type="checkbox" id="specify-url-regexp"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            :checked="rule.specify_url_by_regexp" @change="updateSpecifyUrlByRegexp($event)" />
           <label for="specify-url-regexp">Use RegExp</label>
         </div>
         <div v-if="!isUrlValid" class="section-alert">
@@ -53,8 +51,8 @@
               <span class="count">{{ hideElementsCount }}</span> {{ rule.hide_block_by_css ? 'CSS' : 'XPath' }}
             </label>
             <div class="input-group flex flex-row justify-center shrink grow">
-              <input type="text" class="shrink grow" 
-                :value="rule.hide_block_by_css ? rule.hide_block_css : rule.hide_block_xpath" 
+              <input type="text" class="shrink grow"
+                :value="rule.hide_block_by_css ? rule.hide_block_css : rule.hide_block_xpath"
                 @input="updateHideSelector($event)" />
               <button class="bg-brand-green text-white px-md py-sm shrink-0 grow-0 flex flex-row"
                 @click="pickPath(rule.hide_block_by_css ? 'hide_css' : 'hide_xpath')">
@@ -64,12 +62,12 @@
           </div>
           <div class="flex flex-row gap-sm">
             <div class="flex flex-row gap-md">
-              <input type="radio" id="hide-xpath" :checked="!rule.hide_block_by_css" 
+              <input type="radio" id="hide-xpath" :checked="!rule.hide_block_by_css"
                 @change="updateHideBlockByCss(false)" />
               <label for="hide-xpath">XPath</label>
             </div>
             <div class="flex flex-row gap-sm">
-              <input type="radio" id="hide-css" :checked="rule.hide_block_by_css" 
+              <input type="radio" id="hide-css" :checked="rule.hide_block_by_css"
                 @change="updateHideBlockByCss(true)" />
               <label for="hide-css">CSS</label>
             </div>
@@ -91,86 +89,23 @@
       <div class="section-body">
         <div class="flex flex-col gap-sm font-[12px]">
           <div class="flex flex-row gap-sm items-center">
-            <input type="radio" id="block-anyway" :checked="rule.block_anyway" 
-              @change="updateBlockAnyway(true)" />
+            <input type="radio" id="block-anyway" :checked="rule.block_anyway" @change="updateBlockAnyway(true)" />
             <label for="block-anyway">Block Anyway</label>
             <a class="flex items-center justify-center" @click="openHelp('/help/block_anyway.html')">
               <QuestionMarkImg class="h-[1.5em] w-[1.5em]" />
             </a>
           </div>
           <div class="flex flex-row gap-sm">
-            <input type="radio" id="block-with-keywords" :checked="!rule.block_anyway" 
+            <input type="radio" id="block-with-keywords" :checked="!rule.block_anyway"
               @change="updateBlockAnyway(false)" />
             <label for="block-with-keywords">Filter with Keywords</label>
           </div>
         </div>
 
         <div v-if="!rule.block_anyway" class="keywords-section">
-          <h4>Keywords</h4>
-          <div class="flex flex-row flex-wrap gap-sm">
-            <div v-for="(word, index) in rule.words" :key="index"
-              class="flex flex-row gap-sm shrink-0 grow-0 bg-brand-blue text-white px-sm justify-center items-center">
-              <CompleteMatchImg v-if="word.is_complete_matching" class="h-[1em] w-[1em]" />
-              <RegexpImg v-if="word.is_regexp" class="h-[1em] w-[1em]" />
-              <CaseSensitiveImg v-if="word.is_case_sensitive" class="h-[1em] w-[1em]" />
-              <IncludeUrlImg v-if="word.is_include_href" class="h-[1em] w-[1em]" />
-              <span type="text">{{ word.text }}</span>
-              <button @click="removeKeyword(index)" class="p-0 shrink-0 grow-0">×</button>
-            </div>
-          </div>
-          <div class="flex flex-row gap-md my-md">
-            <input type="text" v-model="newKeyword" @keyup.enter="addKeyword" class="shrink grow" />
-            <button @click="addKeyword" class="bg-brand-blue grow-0 shrink-0 text-white px-md py-sm">Add</button>
-            <a class="help flex items-center justify-center" @click="openHelp('/help/keywords.html')">
-              <QuestionMarkImg class="h-[1.5em] w-[1.5em] text-black" />
-            </a>
-          </div>
-          <div class="flex flex-row flex-wrap gap-sm">
-            <div class="flex flex-row gap-sm items-center mr-md">
-              <input type="checkbox" id="complete-match" v-model="completeMatch" />
-              <label for="complete-match" class="flex flex-row items-center text-[12px]">
-                <CompleteMatchImg class="h-[1.25em] w-[1.25em] mr-sm" />
-                Complete Match
-              </label>
-            </div>
-            <div class="flex flex-row gap-sm items-center mr-md">
-              <input type="checkbox" id="regex-match" v-model="regexMatch" />
-              <label for="regex-match" class="flex flex-row items-center text-[12px]">
-                <RegexpImg class="h-[1.25em] w-[1.25em] mr-sm" />
-                RegEx
-              </label>
-            </div>
-            <div class="flex flex-row gap-sm items-center mr-md">
-              <input type="checkbox" id="case-sensitive" v-model="caseSensitive" />
-              <label for="case-sensitive" class="flex flex-row items-center text-[12px]">
-                <CaseSensitiveImg class="h-[1em] w-[1em] mr-sm" />
-                Case Sensitive
-              </label>
-            </div>
-            <div class="flex flex-row gap-sm items-center">
-              <input type="checkbox" id="include-link-url" v-model="includeLinkUrl" />
-              <label for="include-link-url" class="flex flex-row items-center text-[12px]">
-                <IncludeUrlImg class="h-[1.25em] w-[1.25em] mr-sm" />
-                Include Link URL
-              </label>
-            </div>
-          </div>
-
-          <h4>Keyword Groups</h4>
-          <div class="flex flex-row flex-wrap gap-sm">
-            <div v-for="(group, index) in rule.wordGroups" :key="index"
-              class="flex flex-row gap-sm shrink-0 grow-0 bg-brand-blue text-white px-sm justify-center items-center">
-              <span type="text">{{ group.name }}</span>
-              <button @click="removeKeyword(index)" class="p-0 shrink-0 grow-0">×</button>
-            </div>
-          </div>
-          <select @change="addWordGroup($event.target?.value)">
-            <option value="">----</option>
-            <option v-for="group in availableWordGroups" :key="group.global_identifier" :value="group.global_identifier">
-              {{ group.name }}
-            </option>
-          </select>
-
+          <WordsSection @add-keyword="addKeyword" @remove-keyword="removeKeyword" :words="rule.words"
+            :word-groups="rule.wordGroups" @add-keyword-group="addWordGroup" @remove-keyword-group="removeKeywordGroup"
+            :available-word-groups="availableWordGroups" />
           <h4>Search Range</h4>
           <div class="selector-section">
             <div class="input-section flex flex-row justify-center gap-sm">
@@ -178,8 +113,8 @@
                 <span class="count">{{ searchElementsCount }}</span> {{ rule.search_block_by_css ? 'CSS' : 'XPath' }}
               </label>
               <div class="input-group flex flex-row shrink grow">
-                <input type="text" class="shrink grow" 
-                  :value="rule.search_block_by_css ? rule.search_block_css : rule.search_block_xpath" 
+                <input type="text" class="shrink grow"
+                  :value="rule.search_block_by_css ? rule.search_block_css : rule.search_block_xpath"
                   @input="updateSearchSelector($event)" />
                 <button class="bg-brand-green px-md py-sm shrink-0 grow-0 text-white flex flex-row"
                   @click="pickPath(rule.search_block_by_css ? 'search_css' : 'search_xpath')">
@@ -189,12 +124,12 @@
             </div>
             <div class="flex flex-row gap-md">
               <div class="flex flex-row gap-sm">
-                <input type="radio" id="search-xpath" :checked="!rule.search_block_by_css" 
+                <input type="radio" id="search-xpath" :checked="!rule.search_block_by_css"
                   @change="updateSearchBlockByCss(false)" />
                 <label for="search-xpath">XPath</label>
               </div>
               <div class="flex flex-row gap-sm">
-                <input type="radio" id="search-css" :checked="rule.search_block_by_css" 
+                <input type="radio" id="search-css" :checked="rule.search_block_by_css"
                   @change="updateSearchBlockByCss(true)" />
                 <label for="search-css">CSS</label>
               </div>
@@ -219,16 +154,16 @@
 </template>
 
 <script setup lang="ts">
-import type { Rule, WordGroup } from '~/types';
+import type { Rule, Word, WordGroup } from '~/types';
 import { ref, computed, type DeepReadonly } from 'vue'
-import { getElementsByCssSelector, getElementsByXPath } from '~/utils';
+import { getElementsByCssSelector, openHelp, getElementsByXPath } from '~/utils';
 import wand from '~/assets/wand_transparent.png'
-import browser from 'webextension-polyfill';
 import RegexpImg from '~/components/img/Regex.vue'
 import CaseSensitiveImg from '~/components/img/CaseSensitive.vue'
 import CompleteMatchImg from '~/components/img/CompleteMatch.vue'
 import IncludeUrlImg from '~/components/img/IncludeUrl.vue'
 import QuestionMarkImg from '~/components/img/QuestionMark.vue'
+import WordsSection from '~/components/WordsSection.vue';
 
 const wandUrl = new URL(wand, import.meta.url).href;
 const props = defineProps<{
@@ -239,7 +174,7 @@ const props = defineProps<{
 const availableWordGroups = computed(() => {
   return props.wordGroups
     .filter(
-      group => !props.rule.wordGroups.find(({global_identifier}) => group.global_identifier === global_identifier)
+      group => !props.rule.wordGroups.find(({ global_identifier }) => group.global_identifier === global_identifier)
     )
 })
 
@@ -290,7 +225,7 @@ const isUrlValid = computed(() => {
       ? new RegExp(props.rule.site_regexp, 'i')
       : new RegExp(props.rule.site_regexp.replace(/\*/g, '.*'), 'i')
     return regexp.test(window.location.href)
-  } catch(e) {
+  } catch (e) {
     return false
   }
 })
@@ -348,33 +283,21 @@ const updateBlockAnyway = (value: boolean) => {
   updateRule({ block_anyway: value })
 }
 
-const addKeyword = () => {
+const addKeyword = (newWord: Word) => {
   if (newKeyword.value.trim()) {
     const exists = props.rule.words.some(
-      word => word.text === newKeyword.value.trim()
-        && word.is_regexp === regexMatch.value
-        && word.is_complete_matching === completeMatch.value
-        && word.is_case_sensitive === caseSensitive.value
-        && word.is_include_href === includeLinkUrl.value
+      word => word.text === newWord.text
+        && word.is_regexp === newWord.is_regexp
+        && word.is_complete_matching === newWord.is_complete_matching
+        && word.is_case_sensitive === newWord.is_case_sensitive
+        && word.is_include_href === newWord.is_include_href
     )
-    
+
     if (!exists) {
-      const updatedWords = [...props.rule.words, {
-        text: newKeyword.value.trim(),
-        is_regexp: regexMatch.value,
-        is_complete_matching: completeMatch.value,
-        is_case_sensitive: caseSensitive.value,
-        is_include_href: includeLinkUrl.value,
-      }]
-      
+      const updatedWords = [...props.rule.words, newWord]
+
       updateRule({ words: updatedWords })
     }
-    
-    newKeyword.value = ''
-    completeMatch.value = false
-    regexMatch.value = false
-    caseSensitive.value = false
-    includeLinkUrl.value = false
   }
 }
 
@@ -391,15 +314,16 @@ const addWordGroup = (groupId: string) => {
     updateRule({ wordGroups: updatedWordGroups })
   }
 }
+const removeKeywordGroup = (index: number) => {
+  const updatedGroups = [...props.rule.wordGroups]
+  updatedGroups.splice(index, 1)
+  updateRule({ wordGroups: updatedGroups })
+}
 
 const pickPath = (type: string) => {
   emit('pick-path', type)
 }
 
-const openHelp = (url: string) => {
-  const fullUrl = browser.runtime.getURL(url)
-  window.open(fullUrl, 'new', 'width=450,height=500')
-}
 </script>
 
 <style scoped>
