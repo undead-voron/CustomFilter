@@ -23,6 +23,8 @@ export default () => {
     caseSensitive.value = false
     includeLinkUrl.value = false
   }
-  return { clear, keyword, newKeyword, caseSensitive, regexMatch, completeMatch, includeLinkUrl }
-}
 
+  const isValid = computed(() => keyword.value.text.trim() !== '')
+
+  return { clear, keyword, newKeyword, caseSensitive, regexMatch, completeMatch, includeLinkUrl, isValid }
+}
