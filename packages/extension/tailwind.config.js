@@ -74,6 +74,7 @@ export default {
         h2,
         label,
         input,
+        select: input,
       })
 
       addComponents({
