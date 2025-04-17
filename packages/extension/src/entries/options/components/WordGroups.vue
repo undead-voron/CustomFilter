@@ -9,8 +9,9 @@ import useKeywordEditor from '~/composables/useKeywordEditor'
 import useWordGroupEditor from '~/composables/useWordGroupsEditor'
 import { WordGroup } from '~/types'
 import WordGroupEditor from './WordGroupEditor.vue'
+import { WORD_GROUPS_STORAGE_KEY } from '~/utils'
 
-const { value: wordGroups } = useBrowserStorage('wordGroups', [] as WordGroup[])
+const { value: wordGroups } = useBrowserStorage(WORD_GROUPS_STORAGE_KEY, [] as WordGroup[])
 
 const { addKeyword, removeKeyword, name, keywords, reset, updateName, keywordsGroup } = useWordGroupEditor()
 
@@ -26,7 +27,7 @@ function checkAndAddKeyword() {
   }
 }
 
-const writeWordGroupsToStorage = async (value: WordGroup[] | DeepReadonly<WordGroup>[]) => browser.storage.local.set({ wordGroups: JSON.parse(JSON.stringify(value)) });
+const writeWordGroupsToStorage = async (value: WordGroup[] | DeepReadonly<WordGroup>[]) => browser.storage.local.set({ [WORD_GROUPS_STORAGE_KEY]: JSON.parse(JSON.stringify(value)) });
 
 async function save() {
   const existingGroupIndex = wordGroups.value.findIndex(group => group.global_identifier === keywordsGroup.value.global_identifier)
@@ -76,7 +77,7 @@ const isDuplicatedGroup = computed(() => !!wordGroups.value.find(
           No keyword groups found.
         </h2>
         <div v-for="wordGroup in wordGroups" :key="wordGroup.global_identifier" class="flex flex-row justify-between align-middle">
-          <h3>{{ wordGroup.name }}</h3>
+          <h3 class="truncate">{{ wordGroup.name }}</h3>
           <div class="flex flex-row gap-2">
             <button class="w-[14px] h-[14px]" @click="reset(wordGroup)">
               <Edit />

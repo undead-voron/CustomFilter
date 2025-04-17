@@ -8,6 +8,7 @@ import QuestionMarkImg from '~/components/img/QuestionMark.vue'
 import RegexpImg from '~/components/img/Regex.vue'
 import useWordEditor from '~/composables/useKeywordEditor'
 import { openHelp } from '~/utils'
+import { sendMessageToBackground } from 'deco-ext'
 
 const { wordGroups } = defineProps<{
   words: Word[]
@@ -27,6 +28,10 @@ const { clear, keyword, newKeyword, caseSensitive, regexMatch, completeMatch, in
 function addKeyword() {
   emit('addKeyword', keyword.value)
   clear()
+}
+
+async function openWordGroupsEditor() {
+  await sendMessageToBackground('openWordGroupsEditor', undefined)
 }
 </script>
 
@@ -87,24 +92,29 @@ function addKeyword() {
     </div>
   </div>
 
-  <h4>Keyword Groups</h4>
-  <div class="flex flex-row flex-wrap gap-sm">
-    <div
-      v-for="(group, index) in wordGroups" :key="index"
-      class="flex flex-row gap-sm shrink-0 grow-0 bg-brand-blue text-white px-sm justify-center items-center"
-    >
-      <span type="text">{{ group.name }}</span>
-      <button class="p-0 shrink-0 grow-0" @click="$emit('removeKeyword', index)">
-        ×
-      </button>
+  <div class="flex flex-col my-md gap-sm">
+    <h4>Keyword Groups</h4>
+    <div class="flex flex-row flex-wrap gap-sm">
+      <div
+        v-for="(group, index) in wordGroups" :key="index"
+        class="flex flex-row gap-sm shrink-0 grow-0 bg-brand-blue text-white px-sm justify-center items-center"
+      >
+        <span type="text">{{ group.name }}</span>
+        <button class="p-0 shrink-0 grow-0" @click="$emit('removeKeywordGroup', index)">
+          ×
+        </button>
+      </div>
+    </div>
+    <div class="flex flex-row gap-lg items-center">
+      <select @change="emit('addKeywordGroup', $event.target?.value)" class="min-w-[100px] shrink grow">
+        <option value="--------">
+          --------
+        </option>
+        <option v-for="group in availableWordGroups" :key="group.global_identifier" :value="group.global_identifier">
+          {{ group.name }}
+        </option>
+      </select>
+      <a class="flex underline cursor-pointer grow-0 shrink-0 text-label" @click.stop.prevent="openWordGroupsEditor">Manage groups</a>
     </div>
   </div>
-  <select @change="emit('addKeywordGroup', $event.target?.value)">
-    <option value="">
-      ----
-    </option>
-    <option v-for="group in availableWordGroups" :key="group.global_identifier" :value="group.global_identifier">
-      {{ group.name }}
-    </option>
-  </select>
 </template>

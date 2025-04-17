@@ -57,4 +57,9 @@ export default class TabsManager {
       this.setInactiveBadge(tab)
     }
   }
+
+  @onMessage({ key: 'openWordGroupsEditor' })
+  async openWordGroupsEditor() {
+    await browser.tabs.create({ url: browser.runtime.getURL('./src/entries/options/index.html#/word-groups') })
+  }
 }

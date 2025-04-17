@@ -104,7 +104,7 @@
 
         <div v-if="!rule.block_anyway" class="keywords-section">
           <WordsSection @add-keyword="addKeyword" @remove-keyword="removeKeyword" :words="rule.words"
-            :word-groups="rule.wordGroups" @add-keyword-group="addWordGroup" @remove-keyword-group="removeKeywordGroup"
+            :word-groups="rule.wordGroups" @add-keyword-group="addKeywordGroup" @remove-keyword-group="removeKeywordGroup"
             :available-word-groups="availableWordGroups" />
           <h4>Search Range</h4>
           <div class="selector-section">
@@ -158,10 +158,6 @@ import type { Rule, Word, WordGroup } from '~/types';
 import { ref, computed, type DeepReadonly } from 'vue'
 import { getElementsByCssSelector, openHelp, getElementsByXPath } from '~/utils';
 import wand from '~/assets/wand_transparent.png'
-import RegexpImg from '~/components/img/Regex.vue'
-import CaseSensitiveImg from '~/components/img/CaseSensitive.vue'
-import CompleteMatchImg from '~/components/img/CompleteMatch.vue'
-import IncludeUrlImg from '~/components/img/IncludeUrl.vue'
 import QuestionMarkImg from '~/components/img/QuestionMark.vue'
 import WordsSection from '~/components/WordsSection.vue';
 
@@ -178,11 +174,6 @@ const availableWordGroups = computed(() => {
     )
 })
 
-const caseSensitive = ref(false)
-const regexMatch = ref(false)
-const completeMatch = ref(false)
-const includeLinkUrl = ref(false)
-
 const emit = defineEmits<{
   (e: 'save'): void
   (e: 'test'): void
@@ -191,7 +182,6 @@ const emit = defineEmits<{
   (e: 'update:rule', rule: Rule): void
 }>()
 
-const newKeyword = ref('')
 const hideXPathError = ref(false)
 const searchXPathError = ref(false)
 
@@ -284,7 +274,7 @@ const updateBlockAnyway = (value: boolean) => {
 }
 
 const addKeyword = (newWord: Word) => {
-  if (newKeyword.value.trim()) {
+  if (newWord.text.trim()) {
     const exists = props.rule.words.some(
       word => word.text === newWord.text
         && word.is_regexp === newWord.is_regexp
@@ -307,7 +297,7 @@ const removeKeyword = (index: number) => {
   updateRule({ words: updatedWords })
 }
 
-const addWordGroup = (groupId: string) => {
+const addKeywordGroup = (groupId: string) => {
   const group = props.wordGroups.find(group => group.global_identifier === groupId)
   if (group) {
     const updatedWordGroups = [...props.rule.wordGroups, group]

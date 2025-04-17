@@ -30,7 +30,7 @@ import RuleEditor from './RuleEditor.vue'
 import PathPicker from './PathPicker.vue'
 import useDraggable from '~/composables/useDraggable';
 import { useNotification } from '~/composables/useNotification'
-import { isRuleValid } from '~/utils';
+import { isRuleValid, WORD_GROUPS_STORAGE_KEY } from '~/utils';
 import { useBrowserStorage } from '~/composables/useBrowserStorage';
 
 const props = defineProps<{
@@ -45,7 +45,7 @@ const emit = defineEmits<{
 const container = ref<HTMLElement | null>(null)
 const rule = ref<Rule>(JSON.parse(JSON.stringify(props.initialRule)))
 
-const { value: wordGroups } = useBrowserStorage('wordGroups', [] as WordGroup[])
+const { value: wordGroups } = useBrowserStorage(WORD_GROUPS_STORAGE_KEY, [] as WordGroup[])
 
 // Path picker state
 const showPathPicker = ref(false)

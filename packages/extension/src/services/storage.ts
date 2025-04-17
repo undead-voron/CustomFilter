@@ -53,22 +53,23 @@ export default class RulesService {
   async saveRule(rule: Rule): Promise<void> {
     try {
       const storage = await browser.storage.local.get(RULES_STORAGE_KEY)
-      const rules: Rule[] = storage[RULES_STORAGE_KEY] || []
+      const rules: PureRule[] = storage[RULES_STORAGE_KEY] || []
+      const pureRule: PureRule = {...rule, wordGroups: rule.wordGroups.map(({global_identifier}) => global_identifier)}
 
-      if (rule.rule_id) {
+      if (pureRule.rule_id) {
         // Update existing rule
         const index = rules.findIndex(r => r.rule_id === rule.rule_id)
         if (index !== -1) {
-          rules[index] = { ...rule }
+          rules[index] = { ...pureRule }
         }
         else {
-          rules.push(rule)
+          rules.push(pureRule)
         }
       }
       else {
         // Add new rule with generated ID
         rule.rule_id = Date.now()
-        rules.push(rule)
+        rules.push(pureRule)
       }
 
       logInfo('savingRules', { [RULES_STORAGE_KEY]: rules }, rule)

@@ -70,15 +70,23 @@ export default {
         border: '1px solid #888',
       }
 
+      const h4 = {
+        fontSize: '12px',
+        lineHeight: '110%',
+        fontWeight: 'bold',
+      }
+
       addBase({
         h2,
         label,
         input,
         select: input,
+        h4,
       })
 
       addComponents({
         '.text-h2': h2,
+        '.text-label': label,
         '.text-details': {
           fontSize: '10px',
           lineHeight: '10px',
