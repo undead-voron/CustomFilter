@@ -1,13 +1,13 @@
 <template>
   <li class="rule-item flex flex-row items-center justify-between">
-    <div class="flex flex-row items-center">
+    <div class="flex flex-row items-center overflow-hidden">
       <div class="count" :class="{ hit: rule.hitCount > 0, noHit: rule.hitCount === 0 }">
         {{ rule.hitCount }}
       </div>
-      <span>{{ rule.title }}</span>
+      <span class="truncate grow shrink">{{ rule.title }}</span>
     </div>
       
-    <div class="flex flex-row items-center gap-md">
+    <div class="flex flex-row items-center gap-md shrink-0 grow-0">
       <button @click="$emit('toggle', rule)" title="Toggle">
         <img :src="rule.is_disabled ? offUrl : onUrl" class="w-[2.5em] h-[1em]" />
       </button>
