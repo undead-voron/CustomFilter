@@ -1,22 +1,96 @@
+<script setup lang="ts">
+import type { Rule } from '~/types'
+import { sendMessageToBackground } from 'deco-ext'
+import { computed, ref } from 'vue'
+import browser from 'webextension-polyfill'
+import TopLogo from '~/assets/top_title.png'
+import Plus from '~/components/img/Plus.vue'
+import { useBrowserStorage } from '~/composables/useBrowserStorage'
+import { EXTENSION_DISABLED_STORAGE_KEY, RULES_STORAGE_KEY, wildcardToRegExp } from '~/utils'
+import RuleListItem from './RuleListItem.vue'
+
+const props = defineProps<{ activeUrl: string }>()
+// const isEnabled = ref(true)
+const version = ref(`${browser.runtime.getManifest().version}`)
+const showKeywordGroupNote = ref(true)
+const topLogoUrl = new URL(TopLogo, import.meta.url).href
+
+const { value: rules } = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
+const { value: isDisabled } = useBrowserStorage<boolean>(EXTENSION_DISABLED_STORAGE_KEY, false)
+
+const activeRules = computed(() => {
+  return rules.value.filter((rule) => {
+    try {
+      let regex
+      if (rule.specify_url_by_regexp) {
+        regex = new RegExp(rule.site_regexp, 'i')
+      }
+      else {
+        regex = new RegExp(wildcardToRegExp(rule.url), 'i')
+      }
+      return regex.test(props.activeUrl)
+    }
+    catch (e) {
+      console.log(e)
+    }
+    return false
+  })
+})
+
+async function openPreferences() {
+  // TODO: Implement preferences opening logic
+  await sendMessageToBackground('openPreferences', undefined)
+}
+
+async function createRule() {
+  // TODO: Implement rule creation logic
+  await sendMessageToBackground('createRule', undefined)
+  window.close()
+}
+
+async function editRule(rule: Rule) {
+  // TODO: Implement rule editing logic
+  await sendMessageToBackground('updateRule', { id: rule.rule_id })
+  window.close()
+}
+
+async function toggleRule(rule: Rule) {
+  // TODO: Implement rule editing logic
+  await sendMessageToBackground('toggleRule', { id: rule.rule_id })
+}
+
+function deleteRule(rule: Rule) {
+  sendMessageToBackground('deleteRule', { id: rule.rule_id })
+}
+
+// const dismissKeywordGroupNote = () => {
+//   showKeywordGroupNote.value = false
+//   // TODO: Save dismissal state to storage
+// }
+
+async function setEnabledState(isEnabled: boolean) {
+  browser.storage.local.set({ [EXTENSION_DISABLED_STORAGE_KEY]: !isEnabled })
+}
+</script>
+
 <template>
   <div class="popup flex flex-col grow shrink">
     <div class="flex flex-row items-center justify-between">
-      <h1><img :src="topLogoUrl" width="156" alt="CustomBlocker" /></h1>
+      <h1><img :src="topLogoUrl" width="156" alt="CustomBlocker"></h1>
       <div class="flex flex-row items-center gap-lg px-md">
         <div class="flex flex-row items-center gap-sm">
-          <input type="radio" name="extension_enable" id="buttonOn" :value="false" v-model="isDisabled" @change="setEnabledState(true)" />
+          <input id="buttonOn" v-model="isDisabled" type="radio" name="extension_enable" :value="false" @change="setEnabledState(true)">
           <label for="buttonOn">ON</label>
         </div>
         <div class="flex flex-row items-center gap-sm">
-          <input type="radio" name="extension_enable" id="buttonOff" :value="true" v-model="isDisabled" @change="setEnabledState(false)" />
+          <input id="buttonOff" v-model="isDisabled" type="radio" name="extension_enable" :value="true" @change="setEnabledState(false)">
           <label for="buttonOff">OFF</label>
         </div>
-        <a href="#" @click.prevent="openPreferences" class="px-lg">
+        <a href="#" class="px-lg" @click.prevent="openPreferences">
           <!-- <span>Preferences</span> -->
           <span>Help</span>
         </a>
       </div>
-      
     </div>
 
     <div class="content flex flex-col grow shrink">
@@ -41,94 +115,17 @@
         </ul>
       </div>
 
-      <div class="flex flex-row justify-end text-[10px]">Version <span>{{ version }}</span></div>
+      <div class="flex flex-row justify-end text-[10px]">
+        Version <span>{{ version }}</span>
+      </div>
       <div class="flex flex-row">
         <a href="#" class="create-rule-button flex flex-row items-center" @click.prevent="createRule">
           <Plus width="1.2em" height="1.2em" class="mr-sm" /> Create a new rule for this site
         </a>
       </div>
-
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import RuleListItem from './RuleListItem.vue'
-import type { Rule } from '~/types'
-import {sendMessageToBackground} from 'deco-ext'
-import browser from 'webextension-polyfill'
-import Plus from '~/components/img/Plus.vue'
-import { useBrowserStorage } from '~/composables/useBrowserStorage'
-import { RULES_STORAGE_KEY, EXTENSION_DISABLED_STORAGE_KEY,  wildcardToRegExp } from '~/utils'
-import TopLogo from '~/assets/top_title.png';
-
-// const isEnabled = ref(true)
-const version = ref(`${browser.runtime.getManifest().version}`)
-const showKeywordGroupNote = ref(true)
-const topLogoUrl = new URL(TopLogo, import.meta.url).href;
-
-const props = defineProps<{activeUrl: string}>()
-
-const {value: rules} = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
-const {value: isDisabled} = useBrowserStorage<boolean>(EXTENSION_DISABLED_STORAGE_KEY, false)
-
-const activeRules = computed(() => {
-  return rules.value.filter(rule => {
-    try {
-        let regex
-        if (rule.specify_url_by_regexp) {
-          regex = new RegExp(rule.site_regexp, 'i')
-        }
-        else {
-          regex = new RegExp(wildcardToRegExp(rule.url), 'i')
-        }
-        return regex.test(props.activeUrl)
-      }
-      catch (e) {
-        console.log(e)
-      }
-      return false
-  })
-})
-
-const openPreferences = async () => {
-  // TODO: Implement preferences opening logic
-  await sendMessageToBackground('openPreferences', undefined)
-}
-
-const createRule = async () => {
-  // TODO: Implement rule creation logic
-  await sendMessageToBackground('createRule', undefined)
-  window.close();
-  
-}
-
-const editRule = async (rule: Rule) => {
-  // TODO: Implement rule editing logic
-  await sendMessageToBackground('updateRule', {id: rule.rule_id})
-  window.close();
-}
-
-const toggleRule = async (rule: Rule) => {
-  // TODO: Implement rule editing logic
-  await sendMessageToBackground('toggleRule', {id: rule.rule_id})
-}
-
-const deleteRule = (rule: Rule) => {
-  sendMessageToBackground('deleteRule', {id: rule.rule_id})
-}
-
-// const dismissKeywordGroupNote = () => {
-//   showKeywordGroupNote.value = false
-//   // TODO: Save dismissal state to storage
-// }
-
-const setEnabledState = async (isEnabled: boolean) => {
-  browser.storage.local.set({ [EXTENSION_DISABLED_STORAGE_KEY]: !isEnabled })
-}
-
-</script>
 
 <style>
 @tailwind base;
@@ -140,7 +137,9 @@ const setEnabledState = async (isEnabled: boolean) => {
   min-height: 180px;
   margin: 0;
   padding: 7px;
-  font-family: 'Hiragino Kaku Gothic ProN', 'YuGothic', 'Yu Gothic', 'Meiryo', 'MS Gothic', 'Lucida Grande', 'Helvetica', 'Arial', sans-serif;
+  font-family:
+    'Hiragino Kaku Gothic ProN', 'YuGothic', 'Yu Gothic', 'Meiryo', 'MS Gothic', 'Lucida Grande', 'Helvetica', 'Arial',
+    sans-serif;
 }
 
 .header {
@@ -166,7 +165,6 @@ const setEnabledState = async (isEnabled: boolean) => {
   color: #333;
   font-weight: normal;
 }
-
 
 .rule-section {
   margin-bottom: 6px;
@@ -244,4 +242,4 @@ const setEnabledState = async (isEnabled: boolean) => {
   top: 0;
   right: 0;
 }
-</style> 
+</style>

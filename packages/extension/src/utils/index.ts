@@ -1,3 +1,4 @@
+export * from './openHelp'
 export * from './constants'
 export * from './css-utils'
 export * from './dom-utils'

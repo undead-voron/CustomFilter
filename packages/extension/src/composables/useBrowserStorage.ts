@@ -17,5 +17,5 @@ export function useBrowserStorage<T>(key: string, defaultValue: T) {
     browser.storage.local.onChanged.removeListener(listener)
   })
 
-  return { value: readonly<T>(value) }
+  return { value: readonly<typeof value>(value) }
 }

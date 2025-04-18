@@ -10,19 +10,16 @@ export interface Word {
 export interface WordGroup {
   name: string
   words: Word[]
-  updaterId: string
+  // updaterId: string
   global_identifier: string
 }
-export interface Rule {
+interface BaseRule {
   // Copied from legacy Rule
   words: Word[]
-  wordGroups: WordGroup[]
 
   is_disabled: boolean
 
-  rule_id: number // Primary key
-  // user_identifier: string
-  // global_identifier: string
+  rule_id: number
   title: string
   url: string
   site_regexp: string
@@ -38,6 +35,13 @@ export interface Rule {
 
   block_anyway: boolean
   specify_url_by_regexp: boolean
+}
+
+export interface Rule extends BaseRule {
+  wordGroups: WordGroup[]
+}
+export interface PureRule extends BaseRule {
+  wordGroups: string[]
 }
 export interface PathFilter {
   path: string
