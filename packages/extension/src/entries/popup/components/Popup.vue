@@ -10,9 +10,7 @@ import { EXTENSION_DISABLED_STORAGE_KEY, RULES_STORAGE_KEY, wildcardToRegExp } f
 import RuleListItem from './RuleListItem.vue'
 
 const props = defineProps<{ activeUrl: string }>()
-// const isEnabled = ref(true)
 const version = ref(`${browser.runtime.getManifest().version}`)
-const showKeywordGroupNote = ref(true)
 const topLogoUrl = new URL(TopLogo, import.meta.url).href
 
 const { value: rules } = useBrowserStorage<Rule[]>(RULES_STORAGE_KEY, [])
@@ -38,35 +36,26 @@ const activeRules = computed(() => {
 })
 
 async function openPreferences() {
-  // TODO: Implement preferences opening logic
   await sendMessageToBackground('openPreferences', undefined)
 }
 
 async function createRule() {
-  // TODO: Implement rule creation logic
   await sendMessageToBackground('createRule', undefined)
   window.close()
 }
 
 async function editRule(rule: Rule) {
-  // TODO: Implement rule editing logic
   await sendMessageToBackground('updateRule', { id: rule.rule_id })
   window.close()
 }
 
 async function toggleRule(rule: Rule) {
-  // TODO: Implement rule editing logic
   await sendMessageToBackground('toggleRule', { id: rule.rule_id })
 }
 
 function deleteRule(rule: Rule) {
   sendMessageToBackground('deleteRule', { id: rule.rule_id })
 }
-
-// const dismissKeywordGroupNote = () => {
-//   showKeywordGroupNote.value = false
-//   // TODO: Save dismissal state to storage
-// }
 
 async function setEnabledState(isEnabled: boolean) {
   browser.storage.local.set({ [EXTENSION_DISABLED_STORAGE_KEY]: !isEnabled })

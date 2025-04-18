@@ -1,6 +1,4 @@
-import type { Rule } from '../../../types'
 import { InjectableService } from 'deco-ext'
-import { getElementsByCssSelector, getElementsByXPath } from '~/utils'
 
 @InjectableService()
 export default class ElementHighlighter {
@@ -13,27 +11,6 @@ export default class ElementHighlighter {
   STYLE_TMP_SELECT_FOR_SEARCH = 'dotted 2px #0db3ea'
   STYLE_SELECT_FOR_HIDE = 'solid 1px black'
   STYLE_SELECT_FOR_SEARCH = 'solid 1px #0db3ea'
-
-  highlightRule(rule: Rule) {
-    const searchNodes: HTMLElement[] = []
-    const hideNodes: HTMLElement[] = []
-    if (rule) {
-      const searchNodes = (rule.block_anyway)
-        ? []
-        : (
-            (rule.search_block_by_css)
-              ? getElementsByCssSelector(rule.search_block_css)
-              : getElementsByXPath(rule.search_block_xpath)
-          )
-      rule.searchNodes = searchNodes
-      const hideNodes = (rule.hide_block_by_css)
-        ? getElementsByCssSelector(rule.hide_block_css)
-        : getElementsByXPath(rule.hide_block_xpath)
-      rule.hideNodes = hideNodes
-    }
-    this.highlightSearchElements(searchNodes)
-    this.highlightHideElements(hideNodes)
-  }
 
   highlightHideElements(elements?: HTMLElement[]) {
     if (this.hideElements) {
