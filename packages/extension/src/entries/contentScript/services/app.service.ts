@@ -77,6 +77,10 @@ export default class Main {
         }
       })
       .provide('shadowRoot', this.appRoot.parentNode)
+      .provide('clearSelections', () => {
+        this.elementsHighliter.clearAll()
+        this.testNodesList.revertAll()
+      })
 
     this.ui.mount(this.appRoot)
   }

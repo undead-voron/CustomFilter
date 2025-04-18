@@ -58,6 +58,7 @@ const {isVisible: isSuccessNotificationVisible, show: showSuccessNotification, h
 
 const testRuleFunction = inject('testRule') as (rule: Rule) => void
 const saveRuleFn = inject('saveRule') as (rule: Rule) => void
+const clearAllSelections = inject('clearSelections') as () => void
 
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -93,6 +94,7 @@ const saveRule = async () => {
 }
 
 const closeEditor = () => {
+  clearAllSelections()
   stopPathPicking()
   emit('close')
   emit('closeEditor')

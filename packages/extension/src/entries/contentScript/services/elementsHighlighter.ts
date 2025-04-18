@@ -123,4 +123,15 @@ export default class ElementHighlighter {
   unselectForSearch(element: HTMLElement) {
     this.highliteNodesForSearching.revert(element)
   }
+  clearAll() {
+    this.highliteNodesForSearching.revertAll()
+    this.highliteNodesForHiding.revertAll()
+    this.backgroundIndicatorHidingNodes.revertAll()
+    for (const coverDivs of this.coverDivsContainer.values()) {
+      for (const coverDiv of coverDivs) {
+        coverDiv.parentNode?.removeChild(coverDiv)
+      }
+    }
+    this.coverDivsContainer.clear()
+  }
 }
