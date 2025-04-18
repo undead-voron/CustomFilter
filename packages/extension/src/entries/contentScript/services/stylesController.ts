@@ -51,13 +51,34 @@ abstract class StyleProcessor {
 @InjectableService()
 export class HiddenNodes extends StyleProcessor {
   attribute = 'display'
-  attributeJs = 'display' as AllowedAttributeJs
+  attributeJs: AllowedAttributeJs = 'display'
   value = 'none'
 }
 
 @InjectableService()
 export class TestNodes extends StyleProcessor {
   attribute = 'background-color'
-  attributeJs = 'backgroundColor' as AllowedAttributeJs
+  attributeJs: AllowedAttributeJs  = 'backgroundColor'
   value = '#888'
+}
+
+@InjectableService()
+export class HighlighteNodesForSearching extends StyleProcessor {
+  attribute = 'outline'
+  attributeJs: AllowedAttributeJs  = 'outline'
+  value = 'solid 1px #0db3ea'
+}
+
+@InjectableService()
+export class HighlighteNodesForHiding extends StyleProcessor {
+  attribute = 'outline'
+  attributeJs: AllowedAttributeJs = 'outline'
+  value = 'solid 1px #0db3ea'
+}
+
+@InjectableService()
+export class BackgroundChangeNodesForHiding extends StyleProcessor {
+  attribute = 'background'
+  attributeJs: AllowedAttributeJs = 'background'
+  value = '#bbb'
 }
