@@ -1,8 +1,10 @@
 import { InjectableService } from 'deco-ext'
 
+type AllowedAttributeJs = keyof Omit<CSSStyleDeclaration, 'length' | 'toString' | 'toLocaleString' | 'item' | 'getPropertyValue' | 'setProperty' | 'getPropertyPriority' | 'removeProperty' | 'getPropertyCSSValue' | 'parentRule'> & string
+
 abstract class StyleProcessor {
   abstract attribute: string
-  abstract attributeJs: string
+  abstract attributeJs: AllowedAttributeJs
   abstract value: string
   private originalNodeStylesContainer = new Map<HTMLElement, string>()
 
@@ -15,10 +17,11 @@ abstract class StyleProcessor {
   }
 
   revert(node: HTMLElement) {
-    if (!this.originalNodeStylesContainer.has(node)) {
+    const originalValue = this.originalNodeStylesContainer.get(node)
+    if (!originalValue) {
       return
     }
-    node.style[this.attributeJs] = this.originalNodeStylesContainer.get(node)
+    node.style[this.attributeJs] = originalValue
     this.originalNodeStylesContainer.delete(node)
   }
 
@@ -48,13 +51,13 @@ abstract class StyleProcessor {
 @InjectableService()
 export class HiddenNodes extends StyleProcessor {
   attribute = 'display'
-  attributeJs = 'display'
+  attributeJs = 'display' as AllowedAttributeJs
   value = 'none'
 }
 
 @InjectableService()
 export class TestNodes extends StyleProcessor {
   attribute = 'background-color'
-  attributeJs = 'backgroundColor'
+  attributeJs = 'backgroundColor' as AllowedAttributeJs
   value = '#888'
 }

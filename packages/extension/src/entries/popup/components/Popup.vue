@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Rule } from '~/types'
 import { sendMessageToBackground } from 'deco-ext'
-import { computed, ref } from 'vue'
+import { computed, DeepReadonly, ref } from 'vue'
 import browser from 'webextension-polyfill'
 import TopLogo from '~/assets/top_title.png'
 import Plus from '~/components/img/Plus.vue'
@@ -44,16 +44,16 @@ async function createRule() {
   window.close()
 }
 
-async function editRule(rule: Rule) {
+async function editRule(rule: Rule| DeepReadonly<Rule>) {
   await sendMessageToBackground('updateRule', { id: rule.rule_id })
   window.close()
 }
 
-async function toggleRule(rule: Rule) {
+async function toggleRule(rule: Rule| DeepReadonly<Rule>) {
   await sendMessageToBackground('toggleRule', { id: rule.rule_id })
 }
 
-function deleteRule(rule: Rule) {
+function deleteRule(rule: Rule| DeepReadonly<Rule>) {
   sendMessageToBackground('deleteRule', { id: rule.rule_id })
 }
 

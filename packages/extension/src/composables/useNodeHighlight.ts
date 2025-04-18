@@ -4,8 +4,13 @@ import { useCssBuilder, usePathAnalyzer, useXPathBuilder } from '~/composables/u
 function canProcessElement (element: Element | null | undefined) {
   return !!element && element !== document.body && element !== document.documentElement && document.contains(element);
 }
+
+function isElementWithHref(element: Element & { href?: string }): element is Element & { href: string } {
+  return !!element.getAttribute('href') || (element.href !== undefined)
+}
+
 class LinksController {
-  elements = new Map<Element, string>()
+  elements = new Map<Element & { href: string }, string>()
 
   disableHrefForElement(element: Element) {
     for (const processedElement of this.elements.keys()) {
@@ -22,13 +27,13 @@ class LinksController {
   }
 
   add(element: Element) {
-    if (element.getAttribute('href') && !this.elements.has(element)) {
+    if (isElementWithHref(element) && !this.elements.has(element)) {
       this.elements.set(element, element.getAttribute('href') || '')
       element.href = 'javascript:void(0)'
     }
   }
 
-  restoreElement(element: Element) {
+  restoreElement(element: Element & { href: string }) {
     const originalHref = this.elements.get(element)
     if (originalHref) {
       element.setAttribute('href', originalHref)
