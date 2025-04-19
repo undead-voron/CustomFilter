@@ -1,6 +1,5 @@
 export * from './openHelp'
 export * from './constants'
-export * from './css-utils'
 export * from './dom-utils'
 export * from './findWordInNode'
 export * from './getStaticXPathForRule'

@@ -8,27 +8,12 @@ import { escapeStringForRegExp, RULES_STORAGE_KEY, WORD_GROUPS_STORAGE_KEY } fro
 export default class RulesService {
   createRule(): Rule {
     return {
-      dirty: false,
-      isNew: false,
-      deleted: false,
-      insert_date: 0,
-      update_date: 0,
-      delete_date: 0,
-      updaterId: null,
       words: [] as Word[],
       wordGroups: [] as WordGroup[],
-      hideNodes: [] as HTMLElement[],
-      searchNodes: [] as HTMLElement[],
-      hiddenCount: 0,
-      staticXpath: null,
 
-      appliedWords: [],
-      appliedWordsMap: null,
       is_disabled: false,
 
       rule_id: Date.now(),
-      user_identifier: null,
-      global_identifier: null,
       title: document?.title ?? '',
 
       url: location?.href ?? '',
@@ -38,15 +23,11 @@ export default class RulesService {
       hide_block_by_css: true,
       search_block_by_css: true,
       specify_url_by_regexp: false,
-      keywords: [],
-      is_replace_rule: false,
-      search_block_css: null,
-      search_block_xpath: null,
+      search_block_css: '',
+      search_block_xpath: '',
 
-      hide_block_css: null,
-      hide_block_xpath: null,
-
-      existing: false,
+      hide_block_css: '',
+      hide_block_xpath: '',
     }
   }
 

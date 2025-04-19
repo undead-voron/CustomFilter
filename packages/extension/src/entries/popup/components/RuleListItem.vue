@@ -4,13 +4,15 @@ import OffIcon from '~/assets/off.png'
 import OnIcon from '~/assets/on.png'
 import Delete from '~/components/img/Delete.vue'
 import Edit from '~/components/img/Edit.vue'
+import { DeepReadonly } from 'vue'
 
 defineProps<{
-  rule: Rule
+  rule: Rule | DeepReadonly<Rule>
 }>()
 defineEmits<{
-  (e: 'edit', rule: Rule): void
-  (e: 'delete', rule: Rule): void
+  (e: 'edit', rule: Rule | DeepReadonly<Rule>): void
+  (e: 'delete', rule: Rule | DeepReadonly<Rule>): void
+  (e: 'toggle', rule: Rule | DeepReadonly<Rule>): void
 }>()
 const onUrl = new URL(OnIcon, import.meta.url).href
 const offUrl = new URL(OffIcon, import.meta.url).href

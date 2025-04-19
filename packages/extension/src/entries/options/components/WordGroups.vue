@@ -71,7 +71,7 @@ const isDuplicatedGroup = computed(() => !!wordGroups.value.find(
     <div class="flex flex-row gap-4">
       <div class="flex flex-col gap-2 w-[350px] max-w-[450px] min-w-[350px]">
         <a class="flex flex-row items-center my-2 cursor-pointer underline" @click.prevent="reset()">
-          <Plus width="1.2em" height="1.2em" class="mr-sm" /> Create a new rule for this site
+          <Plus width="1.2em" height="1.2em" class="mr-sm" /> Create a new keywords group
         </a>
         <h2 v-if="!wordGroups.length" class="text-gray-600">
           No keyword groups found.
