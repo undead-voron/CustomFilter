@@ -1,45 +1,45 @@
+<script setup lang="ts">
+import type { Rule } from '~/types'
+import OffIcon from '~/assets/off.png'
+import OnIcon from '~/assets/on.png'
+import Delete from '~/components/img/Delete.vue'
+import Edit from '~/components/img/Edit.vue'
+import { DeepReadonly } from 'vue'
+
+defineProps<{
+  rule: Rule | DeepReadonly<Rule>
+}>()
+defineEmits<{
+  (e: 'edit', rule: Rule | DeepReadonly<Rule>): void
+  (e: 'delete', rule: Rule | DeepReadonly<Rule>): void
+  (e: 'toggle', rule: Rule | DeepReadonly<Rule>): void
+}>()
+const onUrl = new URL(OnIcon, import.meta.url).href
+const offUrl = new URL(OffIcon, import.meta.url).href
+</script>
+
 <template>
   <li class="rule-item flex flex-row items-center justify-between">
-    <div class="flex flex-row items-center">
+    <div class="flex flex-row items-center overflow-hidden">
       <div class="count" :class="{ hit: rule.hitCount > 0, noHit: rule.hitCount === 0 }">
         {{ rule.hitCount }}
       </div>
-      <span>{{ rule.title }}</span>
+      <span class="truncate grow shrink">{{ rule.title }}</span>
     </div>
       
-    <div class="flex flex-row items-center gap-md">
+    <div class="flex flex-row items-center gap-md shrink-0 grow-0">
       <button @click="$emit('toggle', rule)" title="Toggle">
         <img :src="rule.is_disabled ? offUrl : onUrl" class="w-[2.5em] h-[1em]" />
       </button>
-      <button class="button-edit" @click="$emit('edit', rule)" title="Edit">
+      <button class="button-edit" title="Edit" @click="$emit('edit', rule)">
         <Edit />
       </button>
-      <button class="button-delete" @click="$emit('delete', rule)" title="Delete">
+      <button class="button-delete" title="Delete" @click="$emit('delete', rule)">
         <Delete />
       </button>
     </div>
   </li>
 </template>
-
-<script setup lang="ts">
-import type { Rule } from '~/types';
-import Edit from '~/components/img/Edit.vue';
-import Delete from '~/components/img/Delete.vue';
-import OnIcon from '~/assets/on.png';
-import OffIcon from '~/assets/off.png';
-
-const onUrl = new URL(OnIcon, import.meta.url).href;
-const offUrl = new URL(OffIcon, import.meta.url).href;
-
-defineProps<{
-  rule: Rule
-}>()
-
-defineEmits<{
-  (e: 'edit', rule: Rule): void
-  (e: 'delete', rule: Rule): void
-}>()
-</script>
 
 <style scoped>
 .rule-item {
@@ -95,4 +95,4 @@ defineEmits<{
   width: 14px;
   height: 14px;
 }
-</style> 
+</style>

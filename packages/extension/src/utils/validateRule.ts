@@ -25,7 +25,7 @@ export function isRuleValid(rule: Rule): string[] {
     }
   }
   // check that keywords exists if not block_anyway
-  if (!rule.block_anyway && !rule.words.length) {
+  if (!rule.block_anyway && !(rule.words.length || rule.wordGroups.length)) {
     errors.push('Keywords can\'t be empty if "Filter with Keywords" is checked')
   }
   return errors

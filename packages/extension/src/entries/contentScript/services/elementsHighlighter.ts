@@ -1,39 +1,30 @@
-import type { Rule } from '../../../types'
 import { InjectableService } from 'deco-ext'
-import { getElementsByCssSelector, getElementsByXPath } from '~/utils'
+import {
+  HighlighteNodesForSearching,
+  HighlighteNodesForHiding,
+  BackgroundChangeNodesForHiding
+} from '~/entries/contentScript/services/stylesController';
 
 @InjectableService()
 export default class ElementHighlighter {
   hideElements?: HTMLElement[]
   searchElements?: HTMLElement[]
   coverDivs?: HTMLElement[]
-  STYLE_FOCUS_FOR_HIDE = 'solid 2px black'
-  STYLE_FOCUS_FOR_SEARCH = 'solid 2px #0db3ea'
-  STYLE_TMP_SELECT_FOR_HIDE = 'dotted 2px black'
-  STYLE_TMP_SELECT_FOR_SEARCH = 'dotted 2px #0db3ea'
-  STYLE_SELECT_FOR_HIDE = 'solid 1px black'
-  STYLE_SELECT_FOR_SEARCH = 'solid 1px #0db3ea'
 
-  highlightRule(rule: Rule) {
-    const searchNodes: HTMLElement[] = []
-    const hideNodes: HTMLElement[] = []
-    if (rule) {
-      const searchNodes = (rule.block_anyway)
-        ? []
-        : (
-            (rule.search_block_by_css)
-              ? getElementsByCssSelector(rule.search_block_css)
-              : getElementsByXPath(rule.search_block_xpath)
-          )
-      rule.searchNodes = searchNodes
-      const hideNodes = (rule.hide_block_by_css)
-        ? getElementsByCssSelector(rule.hide_block_css)
-        : getElementsByXPath(rule.hide_block_xpath)
-      rule.hideNodes = hideNodes
-    }
-    this.highlightSearchElements(searchNodes)
-    this.highlightHideElements(hideNodes)
-  }
+  private STYLE_FOCUS_FOR_HIDE = 'solid 2px black'
+  private STYLE_FOCUS_FOR_SEARCH = 'solid 2px #0db3ea'
+  private STYLE_TMP_SELECT_FOR_HIDE = 'dotted 2px black'
+  private STYLE_TMP_SELECT_FOR_SEARCH = 'dotted 2px #0db3ea'
+  private STYLE_SELECT_FOR_HIDE = 'solid 1px black'
+  private STYLE_SELECT_FOR_SEARCH = 'solid 1px #0db3ea'
+
+  coverDivsContainer: Map<HTMLElement, HTMLElement[]> = new Map()
+
+  constructor(
+    private readonly highliteNodesForSearching: HighlighteNodesForSearching,
+    private readonly highliteNodesForHiding: HighlighteNodesForHiding,
+    private readonly backgroundIndicatorHidingNodes: BackgroundChangeNodesForHiding,
+  ) {}
 
   highlightHideElements(elements?: HTMLElement[]) {
     if (this.hideElements) {
@@ -53,39 +44,29 @@ export default class ElementHighlighter {
   }
 
   highlightSearchElements(elements?: HTMLElement[]) {
-    if (this.searchElements) {
-      for (let i = 0, l = this.searchElements.length; i < l; i++) {
-        if (document.getElementById('rule_editor_container')?.contains(this.searchElements[i]))
-          this.unselectForSearch(this.searchElements[i])
-      }
-    }
+    this.highliteNodesForSearching.revertAll()
     // Apply Styles
     if (elements) {
       for (let i = 0; i < elements.length; i++) {
-        if (document.getElementById('rule_editor_container')?.contains(elements[i]))
+        if (!document.getElementById('rule_editor_container')?.contains(elements[i]))
           this.selectForSearch(elements[i])
       }
     }
-    this.searchElements = elements
   }
 
-  selectForHide(element) {
-    if (element.originalStyle == null)
-      element.originalStyle = (element.style.outline != null) ? element.style.outline : ' '
-    element.isSelectedForHide = true
-    element.style.outline = this.STYLE_SELECT_FOR_HIDE
-
+  selectForHide(element: HTMLElement) {
+    this.highliteNodesForHiding.apply(element)
+    
     // Change background color
     if (window.getComputedStyle(element).display === 'inline') {
-      element.originalBackgroundColor = window.getComputedStyle(element).backgroundColor
-      element.style.backgroundColor = '#bbb'
-      element.backgroundColorChanged = true
+      this.backgroundIndicatorHidingNodes.apply(element)
     }
     // Add transparent cover
     else {
       const elementsToCover = []
       if (element.tagName === 'TR') {
-        const children = element.childNodes
+        const children = element.children
+        // const children = element.childNodes
         for (let i = 0; i < children.length; i++) {
           if (children[i].tagName) {
             elementsToCover.push(children[i])
@@ -99,7 +80,9 @@ export default class ElementHighlighter {
         const coverDivs = []
         for (let i = 0; i < elementsToCover.length; i++) {
           const elementToCover = elementsToCover[i]
-          elementToCover.style.position = 'relative'
+          if (elementToCover instanceof HTMLElement) {
+            elementToCover.style.position = 'relative'
+          }
           const div = document.createElement('DIV')
           div.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
           div.style.position = 'absolute'
@@ -111,43 +94,44 @@ export default class ElementHighlighter {
           elementToCover.appendChild(div)
           coverDivs.push(div)
         }
-        element.coverDivs = coverDivs
+        this.coverDivsContainer.set(element, coverDivs)
       }
     }
   }
 
-  unselectForHide(element) {
+  unselectForHide(element: HTMLElement) {
     /* Remove transparent cover div elements */
-    if (element.coverDivs) {
-      for (let i = 0; i < element.coverDivs.length; i++) {
-        const coverDiv = element.coverDivs[i]
-        coverDiv.parentNode.removeChild (coverDiv)
+    const coverDivs = this.coverDivsContainer.get(element)
+    if (coverDivs) {
+      for (let i = 0; i < coverDivs.length; i++) {
+        const coverDiv = coverDivs[i]
+        coverDiv.parentNode?.removeChild (coverDiv)
       }
-      element.coverDivs = null
+      this.coverDivsContainer.delete(element)
+      // element.coverDivs = null
     }
-    if (element.backgroundColorChanged) {
-      element.style.backgroundColor = element.originalBackgroundColor
-      element.originalBackgroundColor = null
-      element.backgroundColorChanged = false
+    if (this.backgroundIndicatorHidingNodes.hasNode(element)) {
+      this.backgroundIndicatorHidingNodes.revert(element)
     }
-    element.isSelectedForHide = false
-    if (element.isSelectedForSearch)
-      element.style.outline = this.STYLE_SELECT_FOR_SEARCH
-    else
-      element.style.outline = element.originalStyle
+    this.highliteNodesForHiding.revert(element)
   }
 
-  selectForSearch(element) {
-    if (element.originalStyle == null)
-      element.originalStyle = (element.style.outline != null) ? element.style.outline : ''
-    element.isSelectedForSearch = true
-    element.style.outline = this.STYLE_SELECT_FOR_SEARCH
+  selectForSearch(element: HTMLElement) {
+    this.highliteNodesForSearching.apply(element)
   }
 
-  unselectForSearch(element) {
-    element.isSelectedForSearch = false
-    if (element.isSelectedForHide)
-      element.style.outline = this.STYLE_SELECT_FOR_HIDE
-    element.style.outline = element.originalStyle
+  unselectForSearch(element: HTMLElement) {
+    this.highliteNodesForSearching.revert(element)
+  }
+  clearAll() {
+    this.highliteNodesForSearching.revertAll()
+    this.highliteNodesForHiding.revertAll()
+    this.backgroundIndicatorHidingNodes.revertAll()
+    for (const coverDivs of this.coverDivsContainer.values()) {
+      for (const coverDiv of coverDivs) {
+        coverDiv.parentNode?.removeChild(coverDiv)
+      }
+    }
+    this.coverDivsContainer.clear()
   }
 }

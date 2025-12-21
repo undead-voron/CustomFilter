@@ -6,8 +6,8 @@ export function findWord(node: Element, rule: Rule): Word | null {
     if (!(_text.length > 0)) {
       return null
     }
-    // TODO: fix it. can just use rule.words.some
-    return rule.words.find((word): Word | void => {
+
+    const checkWord = (word: Word): Word | void => {
       if (word.is_include_href) {
         const links: HTMLAnchorElement[] = []
         if (node.tagName === 'A') {
@@ -53,7 +53,21 @@ export function findWord(node: Element, rule: Rule): Word | null {
         }
       }
       return undefined
-    }) || null
+    }
+    // TODO: fix it. can just use rule.words.some
+    const foundWord = rule.words.find(checkWord)
+    if (foundWord) {
+      return foundWord
+    }
+
+    for (const wordGroup of rule.wordGroups) {
+      const foundWord = wordGroup.words.find(checkWord)
+      if (foundWord) {
+        return foundWord
+      }
+    }
+
+    return null
   }
   catch (ex) {
     // eslint-disable-next-line no-console
